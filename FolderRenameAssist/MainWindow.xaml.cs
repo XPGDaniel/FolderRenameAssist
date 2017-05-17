@@ -14,6 +14,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using Microsoft.VisualBasic.FileIO;
 using log4net;
+using System.Windows.Input;
 
 namespace FolderRenameAssist
 {
@@ -28,6 +29,7 @@ namespace FolderRenameAssist
         public ObservableCollection<AnimeTitle> anititles = new ObservableCollection<AnimeTitle>();
         public ObservableCollection<ItemToRename> Targets = new ObservableCollection<ItemToRename>();
         public string OriginalSearchWord = "";
+        public Key LastKeyStrokeOnGroups = Key.NoName;
 
         private void btn_Preview_Click(object sender, RoutedEventArgs e)
         {
@@ -703,6 +705,51 @@ namespace FolderRenameAssist
             else
             {
                 RichTextBoxHepler.SetText(rtb_Presenter, "");
+            }
+        }
+
+        private void lView_Groups_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            string CurrentKeypress = "[" + e.Key.ToString().ToLowerInvariant();
+            bool CurrentSelectedPattern = ((Group)lView_Groups.SelectedItem).Presenter.ToLowerInvariant().StartsWith(CurrentKeypress);
+            var item = groups.Where(x => x.Presenter.ToLowerInvariant().StartsWith(CurrentKeypress)).FirstOrDefault();
+            if (CurrentSelectedPattern)
+            {
+                if (!((Group)lView_Groups.Items[lView_Groups.SelectedIndex + 1]).Presenter.ToLowerInvariant().StartsWith(CurrentKeypress))
+                {
+                    lView_Groups.SelectedItem = item;
+                    lView_Groups.ScrollIntoView(item);
+                }
+                else
+                {
+                    lView_Groups.SelectedIndex = lView_Groups.SelectedIndex + 1;
+                    lView_Groups.ScrollIntoView(lView_Groups.Items[lView_Groups.SelectedIndex + 1]);
+                }
+            }
+            else
+            {
+                if (item != null)
+                {
+                    lView_Groups.SelectedItem = item;
+                    //int firstindex = lView_Groups.SelectedIndex;
+                    //if (LastKeyStrokeOnGroups == e.Key)
+                    //{
+                    //    lView_Groups.ScrollIntoView(lView_Groups.Items[firstindex + 1]);
+                    //}
+                    //else
+                    //{
+                        lView_Groups.ScrollIntoView(item);
+                    //}
+                }
+            }
+            LastKeyStrokeOnGroups = e.Key;
+        }
+
+        private void lView_Groups_KeyDown(object sender, KeyEventArgs e)
+        {
+            if(e.Key == Key.F)
+            {
+                e.Handled = true;
             }
         }
     }

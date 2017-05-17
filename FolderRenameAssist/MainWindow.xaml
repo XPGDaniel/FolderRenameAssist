@@ -13,7 +13,7 @@
         <Button x:Name="btn_MoveDn" Content="Move Down" HorizontalAlignment="Left" Margin="470,110,0,0" VerticalAlignment="Top" Width="75" Height="50" Click="btn_MoveDn_Click"/>
         <Button x:Name="btn_RemoveGroup" Content="Remove&#xD;&#xA; Group" HorizontalAlignment="Left" Margin="470,170,0,0" VerticalAlignment="Top" Width="75" Height="50" Click="btn_RemoveGroup_Click"/>
         <!--<Button x:Name="btn_ResetGroups" Content="  Reset&#xD;&#xA;Groups" HorizontalAlignment="Left" Margin="470,230,0,0" VerticalAlignment="Top" Width="75" Height="50" Click="btn_ResetGroups_Click" IsEnabled="False"/>-->
-        <ListView x:Name="lView_Groups" HorizontalAlignment="Stretch" Height="300" Margin="560,30,10,0" VerticalAlignment="Top" Width="auto" SelectionChanged="lView_Groups_SelectionChanged" >
+        <ListView x:Name="lView_Groups" HorizontalAlignment="Stretch" Height="300" Margin="560,30,10,0" VerticalAlignment="Top" Width="auto" SelectionChanged="lView_Groups_SelectionChanged" KeyUp="lView_Groups_KeyUp" KeyDown="lView_Groups_KeyDown" >
             <ListView.ItemContainerStyle>
                 <Style TargetType="{x:Type ListViewItem}">
                     <Setter Property="BorderBrush" Value="LightGray" />
