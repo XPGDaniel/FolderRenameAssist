@@ -261,8 +261,7 @@ namespace FolderRenameAssist
                             RichTextBoxHepler.SetText(rtb_GroupMembers, presetgroup.Members);
                             lView_Groups.SelectedItem = presetgroup;
                             lView_Groups.Items.Refresh();
-                            //lView_Groups.Focusable = true;
-                            //lView_Groups.Focus();
+                            lView_Groups.ScrollIntoView(presetgroup);
                         }
                         else
                         {
@@ -428,7 +427,9 @@ namespace FolderRenameAssist
                 ((Group)lView_Groups.SelectedItem).Members = RichTextBoxHepler.GetText(rtb_GroupMembers);
                 ((Group)lView_Groups.SelectedItem).Presenter = RichTextBoxHepler.GetText(rtb_Presenter);
                 btn_UpdateGroup.IsEnabled = false;
-                lView_Groups.SelectedItem = null;
+                //lView_Groups.SelectedItem = null;
+                groups = new ObservableCollection<Group>(groups.OrderBy(i => i.Presenter));
+                lView_Groups.ItemsSource = groups;
                 lView_Groups.Items.Refresh();
                 RichTextBoxHepler.SetText(rtb_GroupMembers, "");
                 RichTextBoxHepler.SetText(rtb_Presenter, "");
