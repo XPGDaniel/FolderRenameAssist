@@ -15,6 +15,7 @@ using System.Windows.Data;
 using Microsoft.VisualBasic.FileIO;
 using log4net;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace FolderRenameAssist
 {
@@ -370,8 +371,8 @@ namespace FolderRenameAssist
             if (lView_Groups.SelectedItems.Count == 0)
             {
                 btn_UpdateGroup.IsEnabled = false;
-                btn_MoveUp.IsEnabled = false;
-                btn_MoveDn.IsEnabled = false;
+                //btn_MoveUp.IsEnabled = false;
+                //btn_MoveDn.IsEnabled = false;
                 btn_RemoveGroup.IsEnabled = false;
                 return;
             }
@@ -380,8 +381,8 @@ namespace FolderRenameAssist
                 RichTextBoxHepler.SetText(rtb_GroupMembers, ((Group)lView_Groups.SelectedItem).Members);
                 RichTextBoxHepler.SetText(rtb_Presenter, ((Group)lView_Groups.SelectedItem).Presenter);
                 btn_UpdateGroup.IsEnabled = true;
-                btn_MoveUp.IsEnabled = true;
-                btn_MoveDn.IsEnabled = true;
+                //btn_MoveUp.IsEnabled = true;
+                //btn_MoveDn.IsEnabled = true;
                 btn_RemoveGroup.IsEnabled = true;
                 //lView_TargetList.SelectedItem = null;
                 if (lView_TargetList.SelectedItem == null)
@@ -395,7 +396,7 @@ namespace FolderRenameAssist
             {
                 string presenter = RichTextBoxHepler.GetText(rtb_Presenter).Replace(":", "：").Replace("/", "／").Replace("?", "？").Replace(",", "][").Trim();
                 string members = RichTextBoxHepler.GetText(rtb_GroupMembers).Replace(":", "：").Trim();
-                if (!string.IsNullOrEmpty(OriginalSearchWord) && OriginalSearchWord != tbx_TitleKeyword.Text)
+                if (!string.IsNullOrEmpty(OriginalSearchWord) && OriginalSearchWord != tbx_TitleKeyword.Text && cbox_AddKeywordToGroup.IsChecked == true)
                 {
                     members = members + "," + OriginalSearchWord;
                 }
@@ -588,8 +589,8 @@ namespace FolderRenameAssist
             //log4net.GlobalContext.Properties["pid"] = Process.GetCurrentProcess().Id; 
             btn_Undo.IsEnabled = false;
             btn_UpdateGroup.IsEnabled = false;
-            btn_MoveUp.IsEnabled = false;
-            btn_MoveDn.IsEnabled = false;
+            //btn_MoveUp.IsEnabled = false;
+            //btn_MoveDn.IsEnabled = false;
             btn_RemoveGroup.IsEnabled = false;
             btn_Remove_Item.IsEnabled = false;
             btn_Preview.IsEnabled = false;
@@ -752,6 +753,13 @@ namespace FolderRenameAssist
             {
                 e.Handled = true;
             }
+        }
+        
+        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            HitTestResult r = VisualTreeHelper.HitTest(this, e.GetPosition(this));
+            if (r.VisualHit.GetType() != typeof(ListBoxItem))
+                lView_Groups.UnselectAll();
         }
     }
 }
