@@ -165,32 +165,32 @@ namespace FolderRenameAssist
                 if (UndoList.Any())
                 {
                     foreach (ItemToRename fileCandidate in UndoList)
-                {
-                    if (string.IsNullOrEmpty(fileCandidate.After))
                     {
-                        fileCandidate.Result = GlobalConst.EMPTY_STRING;
-                        continue;
+                        if (string.IsNullOrEmpty(fileCandidate.After))
+                        {
+                            fileCandidate.Result = GlobalConst.EMPTY_STRING;
+                            continue;
+                        }
+                        if (Directory.Exists(Directory.GetParent(fileCandidate.Path).FullName + "\\" + fileCandidate.After))
+                        {
+                            try
+                            {
+                                Directory.Move(Directory.GetParent(fileCandidate.Path).FullName + "\\" + fileCandidate.After, fileCandidate.Path);
+                                fileCandidate.Result = GlobalConst.RESULT_UNDO_OK;
+                            }
+                            catch (Exception)
+                            {
+                                fileCandidate.Result = GlobalConst.RESULT_UNDO_FAIL;
+                            }
+                        }
                     }
-                    if (Directory.Exists(Directory.GetParent(fileCandidate.Path).FullName + "\\" + fileCandidate.After))
+                    for (int i = 0; i < UndoList.Count; i++)
                     {
-                        try
-                        {
-                            Directory.Move(Directory.GetParent(fileCandidate.Path).FullName + "\\" + fileCandidate.After, fileCandidate.Path);
-                            fileCandidate.Result = GlobalConst.RESULT_UNDO_OK;
-                        }
-                        catch (Exception)
-                        {
-                            fileCandidate.Result = GlobalConst.RESULT_UNDO_FAIL;
-                        }
+                        int index = Targets.IndexOf(Targets.Where(X => X.Path == UndoList[i].Path).FirstOrDefault());
+                        Targets[index].Result = UndoList[i].Result;
                     }
                 }
-                for (int i = 0; i < UndoList.Count; i++)
-                {
-                    int index = Targets.IndexOf(Targets.Where(X => X.Path == UndoList[i].Path).FirstOrDefault());
-                    Targets[index].Result = UndoList[i].Result;
-                }
-            }
-            UndoList.Clear();
+                UndoList.Clear();
                 lView_TargetList.Items.Refresh();
                 btn_Undo.IsEnabled = false;
                 tbx_TitleKeyword.Text = "";
@@ -246,31 +246,33 @@ namespace FolderRenameAssist
                         GroupHandler.GetTitleKeyword(((ItemToRename)lView_TargetList.SelectedItems[0]).Before) : ((ItemToRename)lView_TargetList.SelectedItems[0]).AlterKey;
 
                     OriginalSearchWord = tbx_TitleKeyword.Text;
-                    AnidbResult ar = GroupHandler.SearchAniDB(anititles, tbx_TitleKeyword.Text);
+                    AnidbResult ar = SearchMatchFromBothSources(tbx_TitleKeyword.Text);
                     if (ar != null)
                     {
-                        tbx_AnidbID.Text = ar.aid;
+                        if (ar.aid == "xxx")
+                        {
+                            Group presetgroup = groups.Where(x => x.Presenter == ar.presenter).FirstOrDefault();
+                            if (presetgroup != null)
+                            {
+                                lbl_GroupsMatch.Visibility = Visibility.Visible;
+                                lView_Groups.SelectedItem = presetgroup;
+                                lView_Groups.Items.Refresh();
+                                lView_Groups.ScrollIntoView(presetgroup);
+                            }
+                        }
+                        else
+                        {
+                            lbl_GroupsMatch.Visibility = Visibility.Hidden;
+                            tbx_AnidbID.Text = ar.aid;
+                        }
                         RichTextBoxHepler.SetText(rtb_Presenter, ar.presenter);
                         RichTextBoxHepler.SetText(rtb_GroupMembers, ar.keywords);
                     }
                     else
                     {
-                        Group presetgroup = groups.Where(x => x.Members.ToLowerInvariant().Contains(tbx_TitleKeyword.Text.ToLowerInvariant())).FirstOrDefault();
-                        if (presetgroup != null)
-                        {
-                            RichTextBoxHepler.SetText(rtb_Presenter, presetgroup.Presenter);
-                            RichTextBoxHepler.SetText(rtb_GroupMembers, presetgroup.Members);
-                            lView_Groups.SelectedItem = presetgroup;
-                            lView_Groups.Items.Refresh();
-                            lView_Groups.ScrollIntoView(presetgroup);
-                        }
-                        else
-                        {
-                            RichTextBoxHepler.SetText(rtb_Presenter, "");
-                            RichTextBoxHepler.SetText(rtb_GroupMembers, "");
-                        }
+                        RichTextBoxHepler.SetText(rtb_Presenter, "");
+                        RichTextBoxHepler.SetText(rtb_GroupMembers, "");
                     }
-                    //lView_Groups.SelectedItem = null;
                 }
             }
             else
@@ -386,7 +388,7 @@ namespace FolderRenameAssist
                 btn_RemoveGroup.IsEnabled = true;
                 //lView_TargetList.SelectedItem = null;
                 if (lView_TargetList.SelectedItem == null)
-                btn_SetAlterKey.IsEnabled = false;
+                    btn_SetAlterKey.IsEnabled = false;
             }
         }
 
@@ -400,7 +402,7 @@ namespace FolderRenameAssist
                 {
                     members = members + "," + OriginalSearchWord;
                 }
-                if(presenter.LastIndexOf(',') == presenter.Length-1)
+                if (presenter.LastIndexOf(',') == presenter.Length - 1)
                 {
                     presenter = presenter.Substring(0, presenter.Length - 2);
                 }
@@ -410,7 +412,7 @@ namespace FolderRenameAssist
                     Presenter = "[" + presenter + "]",
                     Members = members
                 });
-                groups = new ObservableCollection<Group>( groups.OrderBy(i => i.Presenter));
+                groups = new ObservableCollection<Group>(groups.OrderBy(i => i.Presenter));
                 lView_Groups.ItemsSource = groups;
                 lView_Groups.Items.Refresh();
                 RichTextBoxHepler.SetText(rtb_Presenter, "");
@@ -601,7 +603,7 @@ namespace FolderRenameAssist
             ((INotifyCollectionChanged)lView_TargetList.Items).CollectionChanged += listView_CollectionChanged;
             groups = XMLHelper.LoadGroupXML(@"GroupSetting.xml");
             if (groups.Count > 0) lView_Groups.ItemsSource = groups;
-            
+
             CheckAniDBSource();
         }
 
@@ -655,18 +657,31 @@ namespace FolderRenameAssist
 
         private void tbx_TitleKeyword_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            AnidbResult ar = GroupHandler.SearchAniDB(anititles, tbx_TitleKeyword.Text.Trim());
+            AnidbResult ar = SearchMatchFromBothSources(tbx_TitleKeyword.Text);
             if (ar != null)
             {
-                tbx_AnidbID.Text = ar.aid;
+                if (ar.aid == "xxx")
+                {
+                    Group presetgroup = groups.Where(x => x.Presenter == ar.presenter).FirstOrDefault();
+                    if (presetgroup != null)
+                    {
+                        lbl_GroupsMatch.Visibility = Visibility.Visible;
+                        lView_Groups.SelectedItem = presetgroup;
+                        lView_Groups.Items.Refresh();
+                        lView_Groups.ScrollIntoView(presetgroup);
+                    }
+                }
+                else
+                {
+                    lbl_GroupsMatch.Visibility = Visibility.Hidden;
+                    tbx_AnidbID.Text = ar.aid;
+                }
                 RichTextBoxHepler.SetText(rtb_GroupMembers, ar.keywords);
-                //if (string.IsNullOrEmpty(RichTextBoxHepler.GetText(rtb_Presenter)))
-                //{
-                    RichTextBoxHepler.SetText(rtb_Presenter, ar.presenter);
-                //}
+                RichTextBoxHepler.SetText(rtb_Presenter, ar.presenter);
             }
             else
             {
+                lbl_GroupsMatch.Visibility = Visibility.Hidden;
                 RichTextBoxHepler.SetText(rtb_Presenter, "");
             }
         }
@@ -688,6 +703,7 @@ namespace FolderRenameAssist
             {
                 btn_SetAlterKey.IsEnabled = true;
                 cbox_AddKeywordToGroup.IsChecked = true;
+                tbx_TitleKeyword_KeyUp(null, null);
             }
             else
             {
@@ -740,7 +756,7 @@ namespace FolderRenameAssist
                     //}
                     //else
                     //{
-                        lView_Groups.ScrollIntoView(item);
+                    lView_Groups.ScrollIntoView(item);
                     //}
                 }
             }
@@ -749,17 +765,46 @@ namespace FolderRenameAssist
 
         private void lView_Groups_KeyDown(object sender, KeyEventArgs e)
         {
-            if(e.Key == Key.F)
+            if (e.Key == Key.F)
             {
                 e.Handled = true;
             }
         }
-        
+
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
             HitTestResult r = VisualTreeHelper.HitTest(this, e.GetPosition(this));
             if (r.VisualHit.GetType() != typeof(ListBoxItem))
                 lView_Groups.UnselectAll();
+        }
+
+        private void btn_GetOriginalAsKeyword_Click(object sender, RoutedEventArgs e)
+        {
+            if (lView_TargetList.SelectedIndex != -1)
+            {
+                tbx_TitleKeyword.Text = ((ItemToRename)lView_TargetList.SelectedItem).Before;
+            }
+        }
+        private AnidbResult SearchMatchFromBothSources(string keyword)
+        {
+            AnidbResult ar = new AnidbResult();
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                ar = GroupHandler.SearchGroups(groups, tbx_TitleKeyword.Text.Trim());
+                if (ar != null)
+                {
+                    return ar;
+                }
+                else
+                {
+                    ar = GroupHandler.SearchAniDB(anititles, tbx_TitleKeyword.Text.Trim());
+                    if (ar != null)
+                    {
+                        return ar;
+                    }
+                }
+            }
+            return null;
         }
     }
 }

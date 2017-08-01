@@ -19,7 +19,7 @@ namespace FolderRenameAssist.Class
                     if (!string.IsNullOrEmpty(list[i].AlterKey))
                     {
                         finalkeyword = list[i].AlterKey;
-                        Console.WriteLine();
+                        //Console.WriteLine();
                     }
                     else
                     {
@@ -134,6 +134,23 @@ namespace FolderRenameAssist.Class
                     ar.aid = aid.ToString();
                     ar.presenter = presenter;
                     ar.keywords = keywords;
+                    return ar;
+                }
+            }
+            return null;
+        }
+        public static AnidbResult SearchGroups(ObservableCollection<Group> groups, string keyword)
+        {
+            AnidbResult ar = new AnidbResult();
+            Group gr = new Group();
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                gr = groups.Where(x => x.Enable && x.Members.ToLowerInvariant().Contains(keyword.ToLowerInvariant())).FirstOrDefault();
+                if(gr != null)
+                {
+                    ar.aid = "xxx";                    
+                    ar.presenter = gr.Presenter;
+                    ar.keywords = gr.Members;
                     return ar;
                 }
             }
