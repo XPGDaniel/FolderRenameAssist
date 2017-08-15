@@ -245,8 +245,9 @@ namespace FolderRenameAssist
                     tbx_TitleKeyword.Text = string.IsNullOrEmpty(((ItemToRename)lView_TargetList.SelectedItems[0]).AlterKey) ?
                         GroupHandler.GetTitleKeyword(((ItemToRename)lView_TargetList.SelectedItems[0]).Before) : ((ItemToRename)lView_TargetList.SelectedItems[0]).AlterKey;
 
-                    OriginalSearchWord = tbx_TitleKeyword.Text;
-                    AnidbResult ar = SearchMatchFromBothSources(tbx_TitleKeyword.Text);
+                    OriginalSearchWord = string.IsNullOrEmpty(tbx_TitleKeyword.Text) ? ((ItemToRename)lView_TargetList.SelectedItems[0]).Before: tbx_TitleKeyword.Text;
+                    if (string.IsNullOrEmpty(tbx_TitleKeyword.Text)) tbx_TitleKeyword.Text = OriginalSearchWord;
+                    AnidbResult ar = SearchMatchFromBothSources(OriginalSearchWord);
                     if (ar != null)
                     {
                         if (ar.aid == "xxx")
@@ -702,7 +703,7 @@ namespace FolderRenameAssist
             if (!string.IsNullOrEmpty(tbx_TitleKeyword.Text))
             {
                 btn_SetAlterKey.IsEnabled = true;
-                cbox_AddKeywordToGroup.IsChecked = true;
+                //cbox_AddKeywordToGroup.IsChecked = true;
                 tbx_TitleKeyword_KeyUp(null, null);
             }
             else
@@ -790,14 +791,14 @@ namespace FolderRenameAssist
             AnidbResult ar = new AnidbResult();
             if (!string.IsNullOrEmpty(keyword))
             {
-                ar = GroupHandler.SearchGroups(groups, tbx_TitleKeyword.Text.Trim());
+                ar = GroupHandler.SearchGroups(groups, keyword.Trim());
                 if (ar != null)
                 {
                     return ar;
                 }
                 else
                 {
-                    ar = GroupHandler.SearchAniDB(anititles, tbx_TitleKeyword.Text.Trim());
+                    ar = GroupHandler.SearchAniDB(anititles, keyword.Trim());
                     if (ar != null)
                     {
                         return ar;

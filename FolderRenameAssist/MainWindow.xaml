@@ -81,7 +81,7 @@
             <FlowDocument/>
         </RichTextBox>
         <Button x:Name="btn_SetAlterKey" Content="Set Alter Key" HorizontalAlignment="Left" VerticalAlignment="Top" Width="91" Margin="269,272,0,0" Height="23" Click="btn_SetAlterKey_Click" IsEnabled="False"/>
-        <CheckBox x:Name="cbox_AddKeywordToGroup" Content="Add Original Keyword to Group" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="11,277,0,0" Height="23"/>
+        <CheckBox x:Name="cbox_AddKeywordToGroup" Content="Add Keyword to Group" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="11,277,0,0" Height="23"/>
         <Button x:Name="btn_GetOriginalAsKeyword" Content="Get Original" HorizontalAlignment="Left" Margin="365,220,0,0" VerticalAlignment="Top" Width="75" Height="23" Click="btn_GetOriginalAsKeyword_Click"/>
         <Label x:Name="lbl_GroupsMatch" Content="Match in Groups" Background="LightBlue" HorizontalAlignment="Left" Margin="365,49,0,0" VerticalAlignment="Top" Height="31" Width="100" Visibility="Hidden"/>
 
