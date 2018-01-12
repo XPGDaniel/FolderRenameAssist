@@ -7,6 +7,7 @@ namespace FolderRenameAssist.Objects
     {
         public event PropertyChangedEventHandler GroupPropertyChanged;
         bool m_Enable;
+        string m_AnidbId;
         string m_Presenter;
         string m_Members;
         public bool Enable
@@ -18,6 +19,18 @@ namespace FolderRenameAssist.Objects
                 {
                     m_Enable = value;
                     OnPropertyChanged("Enable");
+                }
+            }
+        }
+        public string AnidbId
+        {
+            get { return m_AnidbId; }
+            set
+            {
+                if (m_AnidbId != value)
+                {
+                    m_AnidbId = value;
+                    OnPropertyChanged("AnidbId");
                 }
             }
         }

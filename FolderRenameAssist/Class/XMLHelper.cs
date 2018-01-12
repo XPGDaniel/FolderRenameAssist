@@ -28,6 +28,7 @@ namespace FolderRenameAssist.Class
                     {
                         writer.WriteStartElement("Group");
                         writer.WriteAttributeString("Enable", ru.Enable ? "true" : "false");
+                        writer.WriteAttributeString("AnidbId", string.IsNullOrEmpty(ru.AnidbId) ? "" : ru.AnidbId);
                         writer.WriteAttributeString("Presenter", string.IsNullOrEmpty(ru.Presenter) ? "" : ru.Presenter);
                         writer.WriteAttributeString("Members", string.IsNullOrEmpty(ru.Members) ? "" : ru.Members);
                         writer.WriteEndElement();
@@ -53,6 +54,7 @@ namespace FolderRenameAssist.Class
                 select new Group
                 {
                     Enable = Convert.ToBoolean(e.Attributes("Enable").Single().Value),
+                    AnidbId = (e.Attributes("AnidbId") == null) ? "" : e.Attributes("AnidbId").Single().Value,
                     Presenter = e.Attributes("Presenter").Single().Value,
                     Members = e.Attributes("Members").Single().Value
                 }).ToList());

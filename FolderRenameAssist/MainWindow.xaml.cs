@@ -34,7 +34,6 @@ namespace FolderRenameAssist
 
         private void btn_Preview_Click(object sender, RoutedEventArgs e)
         {
-
             if (lView_Groups.Items.Count > 0 && lView_TargetList.Items.Count > 0)
             {
                 lView_TargetList.ItemsSource = null;
@@ -245,7 +244,7 @@ namespace FolderRenameAssist
                     tbx_TitleKeyword.Text = string.IsNullOrEmpty(((ItemToRename)lView_TargetList.SelectedItems[0]).AlterKey) ?
                         GroupHandler.GetTitleKeyword(((ItemToRename)lView_TargetList.SelectedItems[0]).Before) : ((ItemToRename)lView_TargetList.SelectedItems[0]).AlterKey;
 
-                    OriginalSearchWord = string.IsNullOrEmpty(tbx_TitleKeyword.Text) ? ((ItemToRename)lView_TargetList.SelectedItems[0]).Before: tbx_TitleKeyword.Text;
+                    OriginalSearchWord = string.IsNullOrEmpty(tbx_TitleKeyword.Text) ? ((ItemToRename)lView_TargetList.SelectedItems[0]).Before : tbx_TitleKeyword.Text;
                     if (string.IsNullOrEmpty(tbx_TitleKeyword.Text)) tbx_TitleKeyword.Text = OriginalSearchWord;
                     AnidbResult ar = SearchMatchFromBothSources(OriginalSearchWord);
                     if (ar != null)
@@ -383,6 +382,7 @@ namespace FolderRenameAssist
             {
                 RichTextBoxHepler.SetText(rtb_GroupMembers, ((Group)lView_Groups.SelectedItem).Members);
                 RichTextBoxHepler.SetText(rtb_Presenter, ((Group)lView_Groups.SelectedItem).Presenter);
+                tbx_AnidbID.Text = ((Group)lView_Groups.SelectedItem).AnidbId;
                 btn_UpdateGroup.IsEnabled = true;
                 //btn_MoveUp.IsEnabled = true;
                 //btn_MoveDn.IsEnabled = true;
@@ -398,7 +398,7 @@ namespace FolderRenameAssist
             if (!string.IsNullOrEmpty(RichTextBoxHepler.GetText(rtb_GroupMembers)) && !string.IsNullOrEmpty(RichTextBoxHepler.GetText(rtb_Presenter)))
             {
                 string presenter = RichTextBoxHepler.GetText(rtb_Presenter).Replace(":", "：").Replace("/", "／").Replace("?", "？").Replace(",", "][").Trim();
-                string members = RichTextBoxHepler.GetText(rtb_GroupMembers).Replace(":", "：").Trim();
+                string members = RichTextBoxHepler.GetText(rtb_GroupMembers).Trim();
                 if (!string.IsNullOrEmpty(OriginalSearchWord) && OriginalSearchWord != tbx_TitleKeyword.Text && cbox_AddKeywordToGroup.IsChecked == true)
                 {
                     members = members + "," + OriginalSearchWord;
@@ -410,6 +410,7 @@ namespace FolderRenameAssist
                 groups.Add(new Group
                 {
                     Enable = true,
+                    AnidbId = tbx_AnidbID.Text,
                     Presenter = "[" + presenter + "]",
                     Members = members
                 });
@@ -426,8 +427,12 @@ namespace FolderRenameAssist
 
         private void btn_UpdateGroup_Click(object sender, RoutedEventArgs e)
         {
-            if (lView_Groups.SelectedItems.Count == 1 && !string.IsNullOrEmpty(RichTextBoxHepler.GetText(rtb_GroupMembers)) && !string.IsNullOrEmpty(RichTextBoxHepler.GetText(rtb_Presenter)))
+            if (lView_Groups.SelectedItems.Count == 1
+                && !string.IsNullOrEmpty(tbx_AnidbID.Text)
+                && !string.IsNullOrEmpty(RichTextBoxHepler.GetText(rtb_Presenter))
+                && !string.IsNullOrEmpty(RichTextBoxHepler.GetText(rtb_GroupMembers)))
             {
+                ((Group)lView_Groups.SelectedItem).AnidbId = tbx_AnidbID.Text;
                 ((Group)lView_Groups.SelectedItem).Members = RichTextBoxHepler.GetText(rtb_GroupMembers);
                 ((Group)lView_Groups.SelectedItem).Presenter = RichTextBoxHepler.GetText(rtb_Presenter);
                 btn_UpdateGroup.IsEnabled = false;
@@ -437,6 +442,7 @@ namespace FolderRenameAssist
                 lView_Groups.Items.Refresh();
                 RichTextBoxHepler.SetText(rtb_GroupMembers, "");
                 RichTextBoxHepler.SetText(rtb_Presenter, "");
+                tbx_AnidbID.Text = "";
             }
         }
 
@@ -589,6 +595,7 @@ namespace FolderRenameAssist
         {
             //log4net.Config.XmlConfigurator.Configure();
             InitializeComponent();
+            this.Title = this.Title + " v" + System.Reflection.Assembly.GetEntryAssembly().GetName().Version;
             //log4net.GlobalContext.Properties["pid"] = Process.GetCurrentProcess().Id; 
             btn_Undo.IsEnabled = false;
             btn_UpdateGroup.IsEnabled = false;
@@ -691,7 +698,7 @@ namespace FolderRenameAssist
         {
             if (!string.IsNullOrEmpty(tbx_TitleKeyword.Text) && lView_TargetList.SelectedItems.Count == 1)
             {
-                ((ItemToRename)lView_TargetList.SelectedItem).AlterKey = tbx_TitleKeyword.Text.Replace(":", "：").Trim();
+                ((ItemToRename)lView_TargetList.SelectedItem).AlterKey = tbx_TitleKeyword.Text.Trim(); //.Replace(":", "：")
                 btn_SetAlterKey.IsEnabled = false;
                 //lView_TargetList.SelectedItem = null;
                 lView_TargetList.Items.Refresh();
@@ -720,10 +727,12 @@ namespace FolderRenameAssist
             {
                 RichTextBoxHepler.SetText(rtb_GroupMembers, ar.keywords);
                 RichTextBoxHepler.SetText(rtb_Presenter, ar.presenter);
+                btn_SetKeywordKey.IsEnabled = true;
             }
             else
             {
                 RichTextBoxHepler.SetText(rtb_Presenter, "");
+                btn_SetKeywordKey.IsEnabled = false;
             }
         }
 
@@ -791,14 +800,28 @@ namespace FolderRenameAssist
             AnidbResult ar = new AnidbResult();
             if (!string.IsNullOrEmpty(keyword))
             {
-                ar = GroupHandler.SearchGroups(groups, keyword.Trim());
+                if (keyword.Trim().ToLowerInvariant().StartsWith("anidb-") && keyword.Trim().Length > 6)
+                {
+                    ar = GroupHandler.SearchGroups(groups, keyword.Trim(), true);
+                }
+                else
+                {
+                    ar = GroupHandler.SearchGroups(groups, keyword.Trim(), false);
+                }
                 if (ar != null)
                 {
                     return ar;
                 }
                 else
                 {
-                    ar = GroupHandler.SearchAniDB(anititles, keyword.Trim());
+                    if (keyword.Trim().ToLowerInvariant().StartsWith("anidb-") && keyword.Trim().Length > 6)
+                    {
+                        ar = GroupHandler.SearchAniDB(anititles, keyword.Trim(), true);
+                    }
+                    else
+                    {
+                        ar = GroupHandler.SearchAniDB(anititles, keyword.Trim(), false);
+                    }
                     if (ar != null)
                     {
                         return ar;
@@ -806,6 +829,31 @@ namespace FolderRenameAssist
                 }
             }
             return null;
+        }
+
+        private void rtb_Presenter_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(RichTextBoxHepler.GetText(rtb_Presenter)))
+            {
+                //lbl_PresenterLength.Content = RichTextBoxHepler.GetText(rtb_Presenter).Length.ToString() + " chars";
+                lbl_PresenterLength.Content = System.Text.Encoding.UTF8.GetBytes(RichTextBoxHepler.GetText(rtb_Presenter)).Length.ToString() + " chars";
+            }
+            else
+            {
+                if (lbl_PresenterLength != null)
+                    lbl_PresenterLength.Content = "";
+            }
+        }
+
+        private void btn_SetKeyWordKey_Click(object sender, RoutedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(tbx_AnidbID.Text.Trim()))
+            {
+                if (int.TryParse(tbx_AnidbID.Text.Trim(), out int tryit))
+                {
+                    tbx_TitleKeyword.Text = "anidb-" + tbx_AnidbID.Text.Trim();
+                }
+            }
         }
     }
 }

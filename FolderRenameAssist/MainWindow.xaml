@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="FolderRenameAssist" Height="660" Width="1175" Icon="Icon.ico" MouseDown="Window_MouseDown">
+        Title="FolderRenameAssist" Height="660" Width="1175" Icon="Images/Hopstarter-Sleek-Xp-Basic-Folder.ico" MouseDown="Window_MouseDown">
     <Grid>
         <Label x:Name="lbl_GroupMembers" Content="Group Members : " HorizontalAlignment="Left" Margin="10,91,0,0" VerticalAlignment="Top" Width="150"/>
         <Button x:Name="btn_AddGroup" Content=" Add&#xD;&#xA;Group" HorizontalAlignment="Left" Margin="285,327,0,0" VerticalAlignment="Top" Width="75" Height="50" Click="btn_AddGroup_Click"/>
@@ -29,6 +29,7 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
+                    <GridViewColumn Header="AnidbId" Width="50" DisplayMemberBinding="{Binding AnidbId}"/>
                     <GridViewColumn Header="Presenter" Width="200" DisplayMemberBinding="{Binding Presenter}"/>
                     <GridViewColumn Header="Members" Width="600" DisplayMemberBinding="{Binding Members}"/>
                 </GridView>
@@ -76,14 +77,16 @@
         <Label x:Name="lbl_Keyword" Content="Keyword : " HorizontalAlignment="Left" Margin="11,172,0,0" VerticalAlignment="Top"/>
         <Label x:Name="lbl_AnidbID" Content="Anidb ID : " HorizontalAlignment="Left" Margin="3,301,0,0" VerticalAlignment="Top"/>
         <TextBox x:Name="tbx_AnidbID" HorizontalAlignment="Left" Height="23" Margin="75,305,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="124" KeyUp="tbx_AnidbID_KeyUp"/>
-        <Label x:Name="lbl_Presenter" Content="Presetner : " HorizontalAlignment="Left" VerticalAlignment="Top" Margin="11,10,0,0"/>
-        <RichTextBox x:Name="rtb_Presenter" HorizontalAlignment="Left" Height="50" VerticalAlignment="Top" Width="349" Margin="11,36,0,0">
+        <Label x:Name="lbl_Presenter" Content="Presenter : " HorizontalAlignment="Left" VerticalAlignment="Top" Margin="11,10,0,0"/>
+        <RichTextBox x:Name="rtb_Presenter" HorizontalAlignment="Left" Height="50" VerticalAlignment="Top" Width="349" Margin="11,36,0,0" TextChanged="rtb_Presenter_TextChanged">
             <FlowDocument/>
         </RichTextBox>
         <Button x:Name="btn_SetAlterKey" Content="Set Alter Key" HorizontalAlignment="Left" VerticalAlignment="Top" Width="91" Margin="269,272,0,0" Height="23" Click="btn_SetAlterKey_Click" IsEnabled="False"/>
         <CheckBox x:Name="cbox_AddKeywordToGroup" Content="Add Keyword to Group" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="11,277,0,0" Height="23"/>
         <Button x:Name="btn_GetOriginalAsKeyword" Content="Get Original" HorizontalAlignment="Left" Margin="365,220,0,0" VerticalAlignment="Top" Width="75" Height="23" Click="btn_GetOriginalAsKeyword_Click"/>
         <Label x:Name="lbl_GroupsMatch" Content="Match in Groups" Background="LightBlue" HorizontalAlignment="Left" Margin="365,49,0,0" VerticalAlignment="Top" Height="31" Width="100" Visibility="Hidden"/>
+        <Label x:Name="lbl_PresenterLength" Content=" chars" HorizontalAlignment="Left" Margin="257,10,0,0" VerticalAlignment="Top" Width="100" HorizontalContentAlignment="Right"/>
+        <Button x:Name="btn_SetKeywordKey" Content="Set as Keyword" HorizontalAlignment="Left" VerticalAlignment="Top" Width="91" Margin="108,336,0,0" Height="23" Click="btn_SetKeyWordKey_Click" IsEnabled="False"/>
 
     </Grid>
 </Window>

@@ -18,7 +18,7 @@ namespace FolderRenameAssist.Class
                     string finalkeyword = "";
                     if (!string.IsNullOrEmpty(list[i].AlterKey))
                     {
-                        finalkeyword = list[i].AlterKey;
+                        finalkeyword = list[i].AlterKey.ToLowerInvariant();
                         //Console.WriteLine();
                     }
                     else
@@ -28,7 +28,15 @@ namespace FolderRenameAssist.Class
 
                     if (!string.IsNullOrEmpty(finalkeyword))
                     {
-                        FolderRenameAssist.Objects.Group listItem = groups.Find(x => x.Enable && x.Members.ToLowerInvariant().Contains("," + finalkeyword.ToLowerInvariant()));
+                        FolderRenameAssist.Objects.Group listItem;
+                        if (finalkeyword.StartsWith("anidb-") && finalkeyword.Length > 6)
+                        {
+                            listItem = groups.Find(x => x.Enable && x.AnidbId == finalkeyword.Replace("anidb-", ""));
+                        }
+                        else
+                        {
+                            listItem = groups.Find(x => x.Enable && x.Members.ToLowerInvariant().Contains("," + finalkeyword.ToLowerInvariant()));
+                        }
                         if (listItem == null)
                         {
                             listItem = groups.Find(x => x.Enable && x.Members.ToLowerInvariant().Contains(finalkeyword.ToLowerInvariant()));
@@ -70,57 +78,74 @@ namespace FolderRenameAssist.Class
 
         public static string GetTitleKeyword(string before)
         {
-            string header = "";
+            string original = "";
             string foldername = "";
-            if (before.IndexOf('[') == 0 && before.Contains(']'))
+            original = before;
+
+            while (before.IndexOf('[') == 0 && before.Contains(']'))
             {
-                header = before.Substring(0, before.IndexOf(']') + 1);
+                before = before.Substring(before.IndexOf(']') + 1).Trim();
             }
-            if (!string.IsNullOrEmpty(header))
+
+            if (string.IsNullOrEmpty(before))
             {
-                if (header == before) //re-format first
-                {
-                    header = header.Remove(header.IndexOf(']') + 1);
-                    before = before.Replace(header, "").Substring(1);
-                    before = header + " " + before.Remove(before.IndexOf(']'));
-                    if (before.IndexOf('[') != -1)
-                        before = before + " " + before.Substring(before.IndexOf('['));
-                }
-
-                foldername = before.Replace(header, "").Trim();
-                if (foldername[0] == '[') foldername = foldername.Substring(1);
-
-
-                int cutindex = foldername.IndexOfAny(new char[] { '(', '[' });
-                if (cutindex > 0)
-                {
-                    foldername = foldername.Remove(cutindex).Trim();
-                }
-
-                cutindex = IndexOfAny(foldername, new string[] { "TV", "OVA", "BD", "DVD" });
-                if (cutindex > 0)
-                {
-                    foldername = foldername.Remove(cutindex).Trim();
-                }
-
-                if (foldername[foldername.Length - 1] == ']')
-                {
-                    foldername = foldername.Substring(0, foldername.Length - 1);
-                    before = header + " " + foldername;
-                }
-
-                if (!string.IsNullOrEmpty(foldername))
-                {
-                    foldername = foldername.Replace("_", " ");
-                }
+                original = original.Substring(1, original.Length - 2);
+                original = original.Replace("][", ";");
+                return original.Split(';')[original.Split(';').Count() - 1];
             }
-            return foldername;
+
+            foldername = before;
+            if (!string.IsNullOrEmpty(foldername))
+            {
+                foldername = foldername.Replace("_", " ");
+            }
+
+            if (foldername[0] == '[') foldername = foldername.Substring(1);
+
+
+            int cutindex = IndexOfAny(foldername, new string[] { "(", "[", "TV", "OVA", "BD", "DVD" });
+            if (cutindex > 0)
+            {
+                foldername = foldername.Remove(cutindex).Trim();
+            }
+
+            if (foldername[foldername.Length - 1] == ']')
+            {
+                foldername = foldername.Substring(0, foldername.Length - 1);
+            }
+
+            if (foldername.Split(' ')[foldername.Split(' ').Count() - 1][0] == '-')
+            {
+                foldername = foldername.Replace(foldername.Split(' ')[foldername.Split(' ').Count() - 1], "");
+                //foldername = foldername.Remove(foldername.Length - 1, 1);
+            }
+
+            if (foldername[0] == ']') foldername = foldername.Substring(1);
+
+            return foldername.Trim();
         }
 
-        public static AnidbResult SearchAniDB(ObservableCollection<AnimeTitle> anititles, string keyword)
+        public static AnidbResult SearchAniDB(ObservableCollection<AnimeTitle> anititles, string keyword, bool idsearch)
         {
             AnidbResult ar = new AnidbResult();
-            int aid = anititles.Where(x => x.title.ToLowerInvariant().StartsWith(keyword.ToLowerInvariant())).Select(x => x.aid).FirstOrDefault();
+            int aid = 0;
+
+            if (idsearch)
+            {
+                aid = anititles.Where(x => x.aid == Convert.ToInt32(keyword.Replace("anidb-", ""))).Select(x => x.aid).FirstOrDefault();
+            }
+            else
+            {
+                aid = anititles.Where(x => x.title.ToLowerInvariant() == keyword.ToLowerInvariant()).Select(x => x.aid).FirstOrDefault();
+                if (aid < 1)
+                {
+                    aid = anititles.Where(x => x.title.ToLowerInvariant().StartsWith(keyword.ToLowerInvariant())).Select(x => x.aid).FirstOrDefault();
+                    if (aid < 1)
+                    {
+                        aid = anititles.Where(x => x.title.ToLowerInvariant().Contains(keyword.ToLowerInvariant())).Select(x => x.aid).FirstOrDefault();
+                    }
+                }
+            }
             string keywords = "";
             string presenter = "";
             if (aid > 0)
@@ -128,6 +153,8 @@ namespace FolderRenameAssist.Class
                 string[] candidates = anititles.Where(x => x.aid == aid).Select(x => x.title).Distinct(StringComparer.CurrentCultureIgnoreCase).ToArray();
                 keywords = string.Join(",", candidates);
                 string[] Pcandidates = anititles.Where(x => x.aid == aid && x.type != "short").Select(x => x.title).Distinct(StringComparer.CurrentCultureIgnoreCase).ToArray();
+                //Array.Sort(Pcandidates, (x, y) => x.Length.CompareTo(y.Length));
+                Array.Sort(Pcandidates, (x, y) => String.Compare(x, y));
                 presenter = string.Join(",", Pcandidates);
                 if (!string.IsNullOrEmpty(keyword))
                 {
@@ -139,19 +166,33 @@ namespace FolderRenameAssist.Class
             }
             return null;
         }
-        public static AnidbResult SearchGroups(ObservableCollection<Group> groups, string keyword)
+        public static AnidbResult SearchGroups(ObservableCollection<Group> groups, string keyword, bool idsearch)
         {
             AnidbResult ar = new AnidbResult();
             Group gr = new Group();
             if (!string.IsNullOrEmpty(keyword))
             {
-                gr = groups.Where(x => x.Enable && x.Members.ToLowerInvariant().Contains(keyword.ToLowerInvariant())).FirstOrDefault();
-                if(gr != null)
+                if (idsearch)
                 {
-                    ar.aid = "xxx";                    
-                    ar.presenter = gr.Presenter;
-                    ar.keywords = gr.Members;
-                    return ar;
+                    gr = groups.Where(x => x.Enable && x.AnidbId == keyword.Replace("anidb-", "")).FirstOrDefault();
+                    if (gr != null)
+                    {
+                        ar.aid = "xxx";
+                        ar.presenter = gr.Presenter;
+                        ar.keywords = gr.Members;
+                        return ar;
+                    }
+                }
+                else
+                {
+                    gr = groups.Where(x => x.Enable && x.Members.ToLowerInvariant().Contains(keyword.ToLowerInvariant())).FirstOrDefault();
+                    if (gr != null)
+                    {
+                        ar.aid = "xxx";
+                        ar.presenter = gr.Presenter;
+                        ar.keywords = gr.Members;
+                        return ar;
+                    }
                 }
             }
             return null;
@@ -161,7 +202,7 @@ namespace FolderRenameAssist.Class
             AnidbResult ar = new AnidbResult();
             string keywords = "";
             string presenter = "";
-            if (!string.IsNullOrEmpty(aid))
+            if (!string.IsNullOrEmpty(aid) && int.TryParse(aid, out int tryit))
             {
                 string[] candidates = anititles.Where(x => x.aid == Convert.ToInt32(aid)).Select(x => x.title).Distinct(StringComparer.CurrentCultureIgnoreCase).ToArray();
                 keywords = string.Join(",", candidates);
