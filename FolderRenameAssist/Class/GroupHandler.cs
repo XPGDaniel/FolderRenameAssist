@@ -87,11 +87,11 @@ namespace FolderRenameAssist.Class
                 before = before.Substring(before.IndexOf(']') + 1).Trim();
             }
 
-            if (string.IsNullOrEmpty(before))
+            if (string.IsNullOrEmpty(before)) //[tag1][tag2][tag3][....][tagN]
             {
                 original = original.Substring(1, original.Length - 2);
                 original = original.Replace("][", ";");
-                return original.Split(';')[original.Split(';').Count() - 1];
+                return original.Split(';')[1];
             }
 
             foldername = before;
@@ -102,6 +102,15 @@ namespace FolderRenameAssist.Class
 
             if (foldername[0] == '[') foldername = foldername.Substring(1);
 
+            if (foldername.Contains(" "))
+            {
+                HashSet<string> stringSet = new HashSet<string>(new string[] { "d", "wd", "zd" });
+                string FirstSplitCheck = foldername.Split(' ')[0].ToLowerInvariant();
+                if (stringSet.Contains(FirstSplitCheck))
+                {
+                    foldername = foldername.Substring(FirstSplitCheck.Length).Trim();
+                }
+            }
 
             int cutindex = IndexOfAny(foldername, new string[] { "(", "[", "TV", "OVA", "BD", "DVD" });
             if (cutindex > 0)
@@ -122,7 +131,18 @@ namespace FolderRenameAssist.Class
 
             if (foldername[0] == ']') foldername = foldername.Substring(1);
 
-            return foldername.Trim();
+            if (foldername.Contains(" ")) //prefix Title whatever_else
+            {
+                return foldername.Split(' ')[0].Trim();
+            }
+            else if (foldername.StartsWith("[") && foldername.Contains("]") && foldername[foldername.Length - 1] != ']') //[groupname]Titles
+            {
+                return foldername.Substring(foldername.LastIndexOf(']') + 1).Trim();
+            }
+            else
+            {
+                return foldername;
+            }
         }
 
         public static AnidbResult SearchAniDB(ObservableCollection<AnimeTitle> anititles, string keyword, bool idsearch)
