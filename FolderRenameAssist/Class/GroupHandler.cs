@@ -3,11 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace FolderRenameAssist.Class
 {
     public class GroupHandler
     {
+        private static readonly Regex cjkCharRegex = new Regex(@"\p{IsCJKUnifiedIdeographs}");
         public static List<ItemToRename> ReplaceFolderName(List<ItemToRename> list, List<FolderRenameAssist.Objects.Group> groups)
         {
             if (list != null && groups != null)
@@ -94,7 +96,7 @@ namespace FolderRenameAssist.Class
                 return original.Split(';')[1];
             }
 
-            foldername = before;
+            foldername = before; //.Replace("THE ANIMATION","")
             if (!string.IsNullOrEmpty(foldername))
             {
                 foldername = foldername.Replace("_", " ");
@@ -110,9 +112,14 @@ namespace FolderRenameAssist.Class
                 {
                     foldername = foldername.Substring(FirstSplitCheck.Length).Trim();
                 }
+                Regex date = new Regex(@"(\d\d\d\d)-(\d\d)-(\d\d)");
+                if (date.Match(FirstSplitCheck).Success)
+                {
+                    foldername = foldername.Substring(FirstSplitCheck.Length).Trim();
+                }
             }
 
-            int cutindex = IndexOfAny(foldername, new string[] { "(", "[", "TV", "OVA", "BD", "DVD" });
+            int cutindex = IndexOfAny(foldername.ToUpperInvariant(), new string[] { "~", "〜", "～", "(", "[", "TV", "OVA", "BD", "DVD", "THE ANIMATION" });
             if (cutindex > 0)
             {
                 foldername = foldername.Remove(cutindex).Trim();
@@ -133,14 +140,26 @@ namespace FolderRenameAssist.Class
 
             if (foldername.Contains(" ")) //prefix Title whatever_else
             {
-                return foldername.Split(' ')[0].Trim();
+                string FirstSplitCheck = foldername.Split(' ')[0].Trim();
+                if (FirstSplitCheck.Any(z => IsChinese(z))&& foldername.Split(' ').Count() > 1)
+                {
+                    if (foldername.Split(' ')[1].Trim().Contains("～")) return foldername.Split(' ')[1].Trim().Substring(0, foldername.Split(' ')[1].Trim().IndexOf("～")).Trim();
+                    return foldername.Split(' ')[1].Trim();
+                }
+                else
+                {
+                    if (FirstSplitCheck.Contains("～")) return FirstSplitCheck.Substring(0, FirstSplitCheck.IndexOf("～")).Trim();
+                    return FirstSplitCheck;
+                }
             }
             else if (foldername.StartsWith("[") && foldername.Contains("]") && foldername[foldername.Length - 1] != ']') //[groupname]Titles
             {
+                if (foldername.Substring(foldername.LastIndexOf(']') + 1).Trim().Contains("～")) return foldername.Substring(foldername.LastIndexOf(']') + 1).Trim().Substring(0, foldername.Substring(foldername.LastIndexOf(']') + 1).Trim().IndexOf("～")).Trim();
                 return foldername.Substring(foldername.LastIndexOf(']') + 1).Trim();
             }
             else
             {
+                if (foldername.Contains("～")) return foldername.Substring(0,foldername.IndexOf("～")).Trim();
                 return foldername;
             }
         }
@@ -186,10 +205,10 @@ namespace FolderRenameAssist.Class
             }
             return null;
         }
-        public static AnidbResult SearchGroups(ObservableCollection<Group> groups, string keyword, bool idsearch)
+        public static AnidbResult SearchGroups(ObservableCollection<Objects.Group> groups, string keyword, bool idsearch)
         {
             AnidbResult ar = new AnidbResult();
-            Group gr = new Group();
+            Objects.Group gr = new Objects.Group();
             if (!string.IsNullOrEmpty(keyword))
             {
                 if (idsearch)
@@ -234,6 +253,10 @@ namespace FolderRenameAssist.Class
                 return ar;
             }
             return null;
+        }
+        public static bool IsChinese(char c)
+        {
+            return cjkCharRegex.IsMatch(c.ToString());
         }
     }
 }
