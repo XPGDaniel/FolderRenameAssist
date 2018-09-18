@@ -52,6 +52,7 @@ namespace FolderRenameAssist.Class
         //public const string FUNCTYPE_PHASE = "Phase";
         //public const string FUNCTYPE_DIGIT = "Digit";
 
+        public const string RESULT_FOLDER_MERGED = "Folder Merged";
         public const string RESULT_RENAME_OK = "Rename OK";
         public const string RESULT_RENAME_FAIL = "Rename Fail";
         public const string RESULT_NO_RENAME = "Not Affected";

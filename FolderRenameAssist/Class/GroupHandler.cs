@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace FolderRenameAssist.Class
@@ -10,7 +11,38 @@ namespace FolderRenameAssist.Class
     public class GroupHandler
     {
         private static readonly Regex cjkCharRegex = new Regex(@"\p{IsCJKUnifiedIdeographs}");
-        public static List<ItemToRename> ReplaceFolderName(List<ItemToRename> list, List<FolderRenameAssist.Objects.Group> groups)
+        private static Dictionary<string, string> _sanitizer = new Dictionary<string, string>();
+
+        static GroupHandler()
+        {
+            //_sanitizer[" & "] = "";
+            _sanitizer[","] = "";
+            _sanitizer["~"] = "";
+            _sanitizer["〜"] = "";
+            _sanitizer["～"] = "";
+            _sanitizer["！"] = "!";
+            _sanitizer["："] = ":";
+            _sanitizer["ova"] = " ";
+            _sanitizer["oad"] = " ";
+            _sanitizer["oav"] = " ";
+            _sanitizer["tv"] = " ";
+            _sanitizer["tvrip"] = " ";
+            _sanitizer["bd"] = " ";
+            _sanitizer["bdrip"] = " ";
+            _sanitizer["dvd"] = " ";
+            _sanitizer["dvdrip"] = " ";
+            _sanitizer["the animation"] = " ";
+            _sanitizer[" - "] = " ";
+            _sanitizer[" -"] = " ";
+            _sanitizer["- "] = " ";
+            _sanitizer[" + "] = " ";
+            _sanitizer[" +"] = " ";
+            _sanitizer["+ "] = " ";
+            _sanitizer[" sp "] = " ";
+            _sanitizer[" sp"] = " ";
+            _sanitizer["_"] = " ";
+        }
+        public static List<ItemToRename> ReplaceFolderName(List<ItemToRename> list, List<FolderRenameAssist.Objects.Group> groups, bool? presentOnly)
         {
             if (list != null && groups != null)
             {
@@ -47,7 +79,14 @@ namespace FolderRenameAssist.Class
                         {
                             //listItem.Presenter = listItem.Presenter; //.Replace(",", "][")
                             //list[i].Before = list[i].Before.Replace(defaultkeyword, listItem.Presenter);
-                            list[i].Before = listItem.Presenter + list[i].Before; //prefix
+                            if (presentOnly == true)
+                            {
+                                list[i].Before = listItem.Presenter;
+                            }
+                            else
+                            {
+                                list[i].Before = listItem.Presenter + list[i].Before; //prefix
+                            }
                         }
                     }
                 }
@@ -77,36 +116,53 @@ namespace FolderRenameAssist.Class
             }
             return first;
         }
+        public static string StringSanitizer(string input)
+        {
+            StringBuilder sb = new StringBuilder(input.ToLowerInvariant().Trim());
+            string chunk = "";
+            foreach (string to_replace in _sanitizer.Keys)
+            {
+                sb = sb.Replace(to_replace, _sanitizer[to_replace]);
+            }
+            input = sb.ToString();
 
+            while (input.LastIndexOf('[') > -1 && input.Contains(']'))
+            {
+                chunk = input.Substring(input.LastIndexOf('[')).Trim();
+                chunk = chunk.Substring(0, chunk.IndexOf(']') + 1).Trim();
+                input = input.Replace(chunk, "").Trim();
+            }
+            while (input.LastIndexOf('(') > -1 && input.Contains(')'))
+            {
+                chunk = input.Substring(input.LastIndexOf('(')).Trim();
+                chunk = chunk.Substring(0, chunk.IndexOf(')') + 1).Trim();
+                input = input.Replace(chunk, "").Trim();
+            }
+            while (input.LastIndexOf('「') > -1 && input.Contains('」'))
+            {
+                chunk = input.Substring(input.LastIndexOf('「')).Trim();
+                chunk = chunk.Substring(0, chunk.IndexOf('」') + 1).Trim();
+                input = input.Replace(chunk, "").Trim();
+            }
+
+            return input;
+        }
         public static string GetTitleKeyword(string before)
         {
-            string original = "";
+            string original = before;
             string foldername = "";
-            original = before;
-
-            while (before.IndexOf('[') == 0 && before.Contains(']'))
-            {
-                before = before.Substring(before.IndexOf(']') + 1).Trim();
-            }
+            before = StringSanitizer(before);
 
             if (string.IsNullOrEmpty(before)) //[tag1][tag2][tag3][....][tagN]
             {
-                original = original.Substring(1, original.Length - 2);
-                original = original.Replace("][", ";");
-                return original.Split(';')[1];
+                return original;
             }
 
-            foldername = before; //.Replace("THE ANIMATION","")
-            if (!string.IsNullOrEmpty(foldername))
-            {
-                foldername = foldername.Replace("_", " ");
-            }
-
-            if (foldername[0] == '[') foldername = foldername.Substring(1);
-
+            foldername = before;
+            
             if (foldername.Contains(" "))
             {
-                HashSet<string> stringSet = new HashSet<string>(new string[] { "d", "wd", "zd" });
+                HashSet<string> stringSet = new HashSet<string>(new string[] { "w", "d", "wd", "zd" });
                 string FirstSplitCheck = foldername.Split(' ')[0].ToLowerInvariant();
                 if (stringSet.Contains(FirstSplitCheck))
                 {
@@ -118,50 +174,9 @@ namespace FolderRenameAssist.Class
                     foldername = foldername.Substring(FirstSplitCheck.Length).Trim();
                 }
             }
-
-            int cutindex = IndexOfAny(foldername.ToUpperInvariant(), new string[] { "~", "〜", "～", "(", "[", "TV", "OVA", "BD", "DVD", "THE ANIMATION" });
-            if (cutindex > 0)
-            {
-                foldername = foldername.Remove(cutindex).Trim();
-            }
-
-            if (foldername[foldername.Length - 1] == ']')
-            {
-                foldername = foldername.Substring(0, foldername.Length - 1);
-            }
-
-            if (foldername.Split(' ')[foldername.Split(' ').Count() - 1][0] == '-')
-            {
-                foldername = foldername.Replace(foldername.Split(' ')[foldername.Split(' ').Count() - 1], "");
-                //foldername = foldername.Remove(foldername.Length - 1, 1);
-            }
-
-            if (foldername[0] == ']') foldername = foldername.Substring(1);
-
-            if (foldername.Contains(" ")) //prefix Title whatever_else
-            {
-                string FirstSplitCheck = foldername.Split(' ')[0].Trim();
-                if (FirstSplitCheck.Any(z => IsChinese(z))&& foldername.Split(' ').Count() > 1)
-                {
-                    if (foldername.Split(' ')[1].Trim().Contains("～")) return foldername.Split(' ')[1].Trim().Substring(0, foldername.Split(' ')[1].Trim().IndexOf("～")).Trim();
-                    return foldername.Split(' ')[1].Trim();
-                }
-                else
-                {
-                    if (FirstSplitCheck.Contains("～")) return FirstSplitCheck.Substring(0, FirstSplitCheck.IndexOf("～")).Trim();
-                    return FirstSplitCheck;
-                }
-            }
-            else if (foldername.StartsWith("[") && foldername.Contains("]") && foldername[foldername.Length - 1] != ']') //[groupname]Titles
-            {
-                if (foldername.Substring(foldername.LastIndexOf(']') + 1).Trim().Contains("～")) return foldername.Substring(foldername.LastIndexOf(']') + 1).Trim().Substring(0, foldername.Substring(foldername.LastIndexOf(']') + 1).Trim().IndexOf("～")).Trim();
-                return foldername.Substring(foldername.LastIndexOf(']') + 1).Trim();
-            }
-            else
-            {
-                if (foldername.Contains("～")) return foldername.Substring(0,foldername.IndexOf("～")).Trim();
+            
                 return foldername;
-            }
+            //}
         }
 
         public static AnidbResult SearchAniDB(ObservableCollection<AnimeTitle> anititles, string keyword, bool idsearch)

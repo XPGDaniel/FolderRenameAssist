@@ -50,7 +50,7 @@ namespace FolderRenameAssist
                 }
                 if (groups.Any())
                 {
-                    newFilenameList = GroupHandler.ReplaceFolderName(newFilenameList, groups.ToList());
+                    newFilenameList = GroupHandler.ReplaceFolderName(newFilenameList, groups.ToList(), chkbox_PresenterOnly.IsChecked);
                     for (int i = 0; i < Targets.Count; i++)
                     {
                         int index = Targets.IndexOf(Targets.Where(X => X.Path == newFilenameList[i].Path).FirstOrDefault());
@@ -65,8 +65,8 @@ namespace FolderRenameAssist
                 lView_TargetList.Items.Refresh();
                 tbx_TitleKeyword.Text = "";
                 tbx_AnidbID.Text = "";
-                RichTextBoxHepler.SetText(rtb_GroupMembers, "");
-                RichTextBoxHepler.SetText(rtb_Presenter, "");
+                tbx_GroupMembers.Text = "";
+                tbx_Presenter.Text = "";
             }
         }
 
@@ -106,8 +106,49 @@ namespace FolderRenameAssist
                                     if (fileCandidate.Path != Directory.GetParent(fileCandidate.Path).FullName + "\\" + fileCandidate.After)
                                     {
                                         log.Info(Directory.GetParent(fileCandidate.Path).FullName + "\\" + fileCandidate.After);
-                                        Directory.Move(fileCandidate.Path, Directory.GetParent(fileCandidate.Path).FullName + "\\" + fileCandidate.After);
-                                        fileCandidate.Result = GlobalConst.RESULT_RENAME_OK;
+                                        try
+                                        {
+                                            try
+                                            {
+                                                if (File.Exists(Path.Combine(fileCandidate.Path, Path.GetFileName(fileCandidate.Path) + ".md5")))
+                                                    File.Move(Path.Combine(fileCandidate.Path, Path.GetFileName(fileCandidate.Path) + ".md5"), Path.Combine(fileCandidate.Path, fileCandidate.After + ".md5"));
+                                            }
+                                            catch (Exception) { throw; }
+                                            try
+                                            {
+                                                if (Directory.Exists(Path.Combine(fileCandidate.Path.ToLowerInvariant(), "chi")))
+                                                {
+                                                    foreach (var file in Directory.EnumerateFiles(Path.Combine(fileCandidate.Path.ToLowerInvariant(), "chi")))
+                                                    {
+                                                        File.Move(file, Path.Combine(fileCandidate.Path, Path.GetFileName(file)));
+                                                    }
+                                                    Directory.Delete(Path.Combine(fileCandidate.Path.ToLowerInvariant(), "chi"));
+                                                }
+                                                if (Directory.Exists(Path.Combine(fileCandidate.Path.ToLowerInvariant(), "screenlists")))
+                                                {
+                                                    foreach (var file in Directory.EnumerateFiles(Path.Combine(fileCandidate.Path.ToLowerInvariant(), "screenlists")))
+                                                    {
+                                                        File.Move(file, Path.Combine(fileCandidate.Path, Path.GetFileName(file)));
+                                                    }
+                                                    Directory.Delete(Path.Combine(fileCandidate.Path.ToLowerInvariant(), "screenlists"));
+                                                }
+                                            }
+                                            catch (Exception) { throw; }
+                                            Directory.Move(fileCandidate.Path, Directory.GetParent(fileCandidate.Path).FullName + "\\" + fileCandidate.After);
+                                            fileCandidate.Result = GlobalConst.RESULT_RENAME_OK;
+                                        }
+                                        catch (Exception)
+                                        {
+                                            try
+                                            {
+                                                FileSystem.MoveDirectory(fileCandidate.Path, Directory.GetParent(fileCandidate.Path).FullName + "\\" + fileCandidate.After, false /* Overwrite */);
+                                                fileCandidate.Result = GlobalConst.RESULT_FOLDER_MERGED;
+                                            }
+                                            catch (Exception)
+                                            {
+                                                throw;
+                                            }
+                                        }
                                     }
                                     else
                                     {
@@ -138,8 +179,8 @@ namespace FolderRenameAssist
                 btn_Undo.IsEnabled = true;
                 tbx_TitleKeyword.Text = "";
                 tbx_AnidbID.Text = "";
-                RichTextBoxHepler.SetText(rtb_GroupMembers, "");
-                RichTextBoxHepler.SetText(rtb_Presenter, "");
+                tbx_GroupMembers.Text = "";
+                tbx_Presenter.Text = "";
                 MessageBox.Show("Rename Completed!");
             }
         }
@@ -194,8 +235,8 @@ namespace FolderRenameAssist
                 btn_Undo.IsEnabled = false;
                 tbx_TitleKeyword.Text = "";
                 tbx_AnidbID.Text = "";
-                RichTextBoxHepler.SetText(rtb_GroupMembers, "");
-                RichTextBoxHepler.SetText(rtb_Presenter, "");
+                tbx_GroupMembers.Text = "";
+                tbx_Presenter.Text = "";
                 MessageBox.Show("Undo Completed!");
             }
         }
@@ -265,13 +306,13 @@ namespace FolderRenameAssist
                             lbl_GroupsMatch.Visibility = Visibility.Hidden;
                             tbx_AnidbID.Text = ar.aid;
                         }
-                        RichTextBoxHepler.SetText(rtb_Presenter, ar.presenter);
-                        RichTextBoxHepler.SetText(rtb_GroupMembers, ar.keywords);
+                        tbx_Presenter.Text = ar.presenter;
+                        tbx_GroupMembers.Text = ar.keywords;
                     }
                     else
                     {
-                        RichTextBoxHepler.SetText(rtb_Presenter, "");
-                        RichTextBoxHepler.SetText(rtb_GroupMembers, "");
+                        tbx_Presenter.Text = "";
+                        tbx_GroupMembers.Text = "";
                     }
                 }
             }
@@ -340,8 +381,8 @@ namespace FolderRenameAssist
             btn_Undo.IsEnabled = false;
             tbx_TitleKeyword.Text = "";
             tbx_AnidbID.Text = "";
-            RichTextBoxHepler.SetText(rtb_GroupMembers, "");
-            RichTextBoxHepler.SetText(rtb_Presenter, "");
+            tbx_GroupMembers.Text = "";
+            tbx_Presenter.Text = "";
         }
 
         private void btn_Remove_Item_Click(object sender, RoutedEventArgs e)
@@ -357,8 +398,8 @@ namespace FolderRenameAssist
                         items.Remove(lView_TargetList.SelectedItems[0]);
                         tbx_TitleKeyword.Text = "";
                         tbx_AnidbID.Text = "";
-                        RichTextBoxHepler.SetText(rtb_GroupMembers, "");
-                        RichTextBoxHepler.SetText(rtb_Presenter, "");
+                        tbx_GroupMembers.Text = "";
+                        tbx_Presenter.Text = "";
                     }
                 }
             }
@@ -380,12 +421,10 @@ namespace FolderRenameAssist
             }
             else if (lView_Groups.SelectedItems.Count == 1)
             {
-                RichTextBoxHepler.SetText(rtb_GroupMembers, ((Group)lView_Groups.SelectedItem).Members);
-                RichTextBoxHepler.SetText(rtb_Presenter, ((Group)lView_Groups.SelectedItem).Presenter);
+                tbx_GroupMembers.Text = ((Group)lView_Groups.SelectedItem).Members;
+                tbx_Presenter.Text = ((Group)lView_Groups.SelectedItem).Presenter;
                 tbx_AnidbID.Text = ((Group)lView_Groups.SelectedItem).AnidbId;
                 btn_UpdateGroup.IsEnabled = true;
-                //btn_MoveUp.IsEnabled = true;
-                //btn_MoveDn.IsEnabled = true;
                 btn_RemoveGroup.IsEnabled = true;
                 //lView_TargetList.SelectedItem = null;
                 if (lView_TargetList.SelectedItem == null)
@@ -395,10 +434,10 @@ namespace FolderRenameAssist
 
         private void btn_AddGroup_Click(object sender, RoutedEventArgs e)
         {
-            if (!string.IsNullOrEmpty(RichTextBoxHepler.GetText(rtb_GroupMembers)) && !string.IsNullOrEmpty(RichTextBoxHepler.GetText(rtb_Presenter)))
+            if (!string.IsNullOrEmpty(tbx_GroupMembers.Text) && !string.IsNullOrEmpty(tbx_Presenter.Text))
             {
-                string presenter = RichTextBoxHepler.GetText(rtb_Presenter).Replace(":", "：").Replace("/", "／").Replace("?", "？").Replace(",", "][").Trim();
-                string members = RichTextBoxHepler.GetText(rtb_GroupMembers).Trim();
+                string presenter = tbx_Presenter.Text.Replace(":", "：").Replace("/", "／").Replace("?", "？").Replace(",", "][").Trim();
+                string members = tbx_GroupMembers.Text.Trim();
                 if (!string.IsNullOrEmpty(OriginalSearchWord) && OriginalSearchWord != tbx_TitleKeyword.Text && cbox_AddKeywordToGroup.IsChecked == true)
                 {
                     members = members + "," + OriginalSearchWord;
@@ -417,8 +456,8 @@ namespace FolderRenameAssist
                 groups = new ObservableCollection<Group>(groups.OrderBy(i => i.Presenter));
                 lView_Groups.ItemsSource = groups;
                 lView_Groups.Items.Refresh();
-                RichTextBoxHepler.SetText(rtb_Presenter, "");
-                RichTextBoxHepler.SetText(rtb_GroupMembers, "");
+                tbx_Presenter.Text = "";
+                tbx_GroupMembers.Text = "";
                 tbx_TitleKeyword.Text = "";
                 tbx_AnidbID.Text = "";
                 cbox_AddKeywordToGroup.IsChecked = false;
@@ -429,19 +468,18 @@ namespace FolderRenameAssist
         {
             if (lView_Groups.SelectedItems.Count == 1
                 && !string.IsNullOrEmpty(tbx_AnidbID.Text)
-                && !string.IsNullOrEmpty(RichTextBoxHepler.GetText(rtb_Presenter))
-                && !string.IsNullOrEmpty(RichTextBoxHepler.GetText(rtb_GroupMembers)))
+                && !string.IsNullOrEmpty(tbx_Presenter.Text)
+                && !string.IsNullOrEmpty(tbx_GroupMembers.Text))
             {
                 ((Group)lView_Groups.SelectedItem).AnidbId = tbx_AnidbID.Text;
-                ((Group)lView_Groups.SelectedItem).Members = RichTextBoxHepler.GetText(rtb_GroupMembers);
-                ((Group)lView_Groups.SelectedItem).Presenter = RichTextBoxHepler.GetText(rtb_Presenter);
+                ((Group)lView_Groups.SelectedItem).Members = tbx_GroupMembers.Text;
+                ((Group)lView_Groups.SelectedItem).Presenter = tbx_Presenter.Text;
                 btn_UpdateGroup.IsEnabled = false;
-                //lView_Groups.SelectedItem = null;
                 groups = new ObservableCollection<Group>(groups.OrderBy(i => i.Presenter));
                 lView_Groups.ItemsSource = groups;
                 lView_Groups.Items.Refresh();
-                RichTextBoxHepler.SetText(rtb_GroupMembers, "");
-                RichTextBoxHepler.SetText(rtb_Presenter, "");
+                tbx_GroupMembers.Text = "";
+                tbx_Presenter.Text = "";
                 tbx_AnidbID.Text = "";
             }
         }
@@ -545,14 +583,6 @@ namespace FolderRenameAssist
                         btn_Reset_Filelist.IsEnabled = true;
 
                     }
-                    //if (lView_Groups.Items.Count == 0)
-                    //{
-                    //    btn_ResetGroups.IsEnabled = false;
-                    //}
-                    //else
-                    //{
-                    //    btn_ResetGroups.IsEnabled = true;
-                    //}
                     break;
             }
             SaveGroupSettings();
@@ -599,13 +629,10 @@ namespace FolderRenameAssist
             //log4net.GlobalContext.Properties["pid"] = Process.GetCurrentProcess().Id; 
             btn_Undo.IsEnabled = false;
             btn_UpdateGroup.IsEnabled = false;
-            //btn_MoveUp.IsEnabled = false;
-            //btn_MoveDn.IsEnabled = false;
             btn_RemoveGroup.IsEnabled = false;
             btn_Remove_Item.IsEnabled = false;
             btn_Preview.IsEnabled = false;
             btn_GO.IsEnabled = false;
-            //btn_ResetGroups.IsEnabled = false;
             btn_Reset_Filelist.IsEnabled = false;
             ((INotifyCollectionChanged)lView_Groups.Items).CollectionChanged += listView_CollectionChanged;
             ((INotifyCollectionChanged)lView_TargetList.Items).CollectionChanged += listView_CollectionChanged;
@@ -684,13 +711,13 @@ namespace FolderRenameAssist
                     lbl_GroupsMatch.Visibility = Visibility.Hidden;
                     tbx_AnidbID.Text = ar.aid;
                 }
-                RichTextBoxHepler.SetText(rtb_GroupMembers, ar.keywords);
-                RichTextBoxHepler.SetText(rtb_Presenter, ar.presenter);
+                tbx_GroupMembers.Text = ar.keywords;
+                tbx_Presenter.Text = ar.presenter;
             }
             else
             {
                 lbl_GroupsMatch.Visibility = Visibility.Hidden;
-                RichTextBoxHepler.SetText(rtb_Presenter, "");
+                tbx_Presenter.Text = "";
             }
         }
 
@@ -700,7 +727,6 @@ namespace FolderRenameAssist
             {
                 ((ItemToRename)lView_TargetList.SelectedItem).AlterKey = tbx_TitleKeyword.Text.Trim(); //.Replace(":", "：")
                 btn_SetAlterKey.IsEnabled = false;
-                //lView_TargetList.SelectedItem = null;
                 lView_TargetList.Items.Refresh();
             }
         }
@@ -725,52 +751,52 @@ namespace FolderRenameAssist
             AnidbResult ar = GroupHandler.SearchAniDBByID(anititles, tbx_AnidbID.Text.Trim());
             if (ar != null)
             {
-                RichTextBoxHepler.SetText(rtb_GroupMembers, ar.keywords);
-                RichTextBoxHepler.SetText(rtb_Presenter, ar.presenter);
+                tbx_GroupMembers.Text = ar.keywords;
+                tbx_Presenter.Text = ar.presenter;
                 btn_SetKeywordKey.IsEnabled = true;
             }
             else
             {
-                RichTextBoxHepler.SetText(rtb_Presenter, "");
+                tbx_Presenter.Text = "";
                 btn_SetKeywordKey.IsEnabled = false;
             }
         }
 
         private void lView_Groups_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            string CurrentKeypress = "[" + e.Key.ToString().ToLowerInvariant();
-            bool CurrentSelectedPattern = ((Group)lView_Groups.SelectedItem).Presenter.ToLowerInvariant().StartsWith(CurrentKeypress);
-            var item = groups.Where(x => x.Presenter.ToLowerInvariant().StartsWith(CurrentKeypress)).FirstOrDefault();
-            if (CurrentSelectedPattern)
-            {
-                if (!((Group)lView_Groups.Items[lView_Groups.SelectedIndex + 1]).Presenter.ToLowerInvariant().StartsWith(CurrentKeypress))
-                {
-                    lView_Groups.SelectedItem = item;
-                    lView_Groups.ScrollIntoView(item);
-                }
-                else
-                {
-                    lView_Groups.SelectedIndex = lView_Groups.SelectedIndex + 1;
-                    lView_Groups.ScrollIntoView(lView_Groups.Items[lView_Groups.SelectedIndex + 1]);
-                }
-            }
-            else
-            {
-                if (item != null)
-                {
-                    lView_Groups.SelectedItem = item;
-                    //int firstindex = lView_Groups.SelectedIndex;
-                    //if (LastKeyStrokeOnGroups == e.Key)
-                    //{
-                    //    lView_Groups.ScrollIntoView(lView_Groups.Items[firstindex + 1]);
-                    //}
-                    //else
-                    //{
-                    lView_Groups.ScrollIntoView(item);
-                    //}
-                }
-            }
-            LastKeyStrokeOnGroups = e.Key;
+            //string CurrentKeypress = "[" + e.Key.ToString().ToLowerInvariant();
+            //bool CurrentSelectedPattern = ((Group)lView_Groups.SelectedItem).Presenter.ToLowerInvariant().StartsWith(CurrentKeypress);
+            //var item = groups.Where(x => x.Presenter.ToLowerInvariant().StartsWith(CurrentKeypress)).FirstOrDefault();
+            //if (CurrentSelectedPattern)
+            //{
+            //    if (!((Group)lView_Groups.Items[lView_Groups.SelectedIndex + 1]).Presenter.ToLowerInvariant().StartsWith(CurrentKeypress))
+            //    {
+            //        lView_Groups.SelectedItem = item;
+            //        lView_Groups.ScrollIntoView(item);
+            //    }
+            //    else
+            //    {
+            //        lView_Groups.SelectedIndex = lView_Groups.SelectedIndex + 1;
+            //        lView_Groups.ScrollIntoView(lView_Groups.Items[lView_Groups.SelectedIndex + 1]);
+            //    }
+            //}
+            //else
+            //{
+            //    if (item != null)
+            //    {
+            //        lView_Groups.SelectedItem = item;
+            //        //int firstindex = lView_Groups.SelectedIndex;
+            //        //if (LastKeyStrokeOnGroups == e.Key)
+            //        //{
+            //        //    lView_Groups.ScrollIntoView(lView_Groups.Items[firstindex + 1]);
+            //        //}
+            //        //else
+            //        //{
+            //        lView_Groups.ScrollIntoView(item);
+            //        //}
+            //    }
+            //}
+            //LastKeyStrokeOnGroups = e.Key;
         }
 
         private void lView_Groups_KeyDown(object sender, KeyEventArgs e)
@@ -792,7 +818,7 @@ namespace FolderRenameAssist
         {
             if (lView_TargetList.SelectedIndex != -1)
             {
-                tbx_TitleKeyword.Text = ((ItemToRename)lView_TargetList.SelectedItem).Before;
+                tbx_TitleKeyword.Text = GroupHandler.StringSanitizer(((ItemToRename)lView_TargetList.SelectedItem).Before);
             }
         }
         private AnidbResult SearchMatchFromBothSources(string keyword)
@@ -833,10 +859,9 @@ namespace FolderRenameAssist
 
         private void rtb_Presenter_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (!string.IsNullOrEmpty(RichTextBoxHepler.GetText(rtb_Presenter)))
+            if (!string.IsNullOrEmpty(tbx_Presenter.Text))
             {
-                //lbl_PresenterLength.Content = RichTextBoxHepler.GetText(rtb_Presenter).Length.ToString() + " chars";
-                lbl_PresenterLength.Content = System.Text.Encoding.UTF8.GetBytes(RichTextBoxHepler.GetText(rtb_Presenter)).Length.ToString() + " chars";
+                lbl_PresenterLength.Content = System.Text.Encoding.UTF8.GetBytes(tbx_Presenter.Text).Length.ToString() + " chars"; //RichTextBoxHepler.GetText(rtb_Presenter)
             }
             else
             {
@@ -853,6 +878,65 @@ namespace FolderRenameAssist
                 {
                     tbx_TitleKeyword.Text = "anidb-" + tbx_AnidbID.Text.Trim();
                 }
+            }
+        }
+
+        private void tbx_AnidbID_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            btn_SetKeywordKey.IsEnabled = true;
+        }
+
+        private void tbx_SearchGroups_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            string CurrentKeypress = "[" + tbx_SearchGroups.Text.ToString().ToLowerInvariant();
+            bool CurrentSelectedPattern = false;
+            var item = groups.Where(x => x.Presenter.ToLowerInvariant().StartsWith(CurrentKeypress)).FirstOrDefault();
+            if (CurrentSelectedPattern)
+            {
+                if (!((Group)lView_Groups.Items[lView_Groups.SelectedIndex + 1]).Presenter.ToLowerInvariant().StartsWith(CurrentKeypress))
+                {
+                    lView_Groups.SelectedItem = item;
+                    lView_Groups.ScrollIntoView(item);
+                }
+                else
+                {
+                    lView_Groups.SelectedIndex = lView_Groups.SelectedIndex + 1;
+                    lView_Groups.ScrollIntoView(lView_Groups.Items[lView_Groups.SelectedIndex + 1]);
+                }
+            }
+            else
+            {
+                if (item != null)
+                {
+                    lView_Groups.SelectedItem = item;
+                    //int firstindex = lView_Groups.SelectedIndex;
+                    //if (LastKeyStrokeOnGroups == e.Key)
+                    //{
+                    //    lView_Groups.ScrollIntoView(lView_Groups.Items[firstindex + 1]);
+                    //}
+                    //else
+                    //{
+                    lView_Groups.ScrollIntoView(item);
+                    //}
+                }
+            }
+        }
+
+        private void btn_ResetSearch_Click(object sender, RoutedEventArgs e)
+        {
+            tbx_SearchGroups.Text = null;
+        }
+
+        private void tbx_Presenter_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(tbx_Presenter.Text))
+            {
+                lbl_PresenterLength.Content = System.Text.Encoding.UTF8.GetBytes(tbx_Presenter.Text).Length.ToString() + " chars";
+            }
+            else
+            {
+                if (lbl_PresenterLength != null)
+                    lbl_PresenterLength.Content = "";
             }
         }
     }
