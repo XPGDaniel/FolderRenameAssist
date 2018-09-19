@@ -6,6 +6,49 @@
         mc:Ignorable="d"
         Title="Folder Rename Assist" Height="660" Width="1175" Icon="Images/Hopstarter-Sleek-Xp-Basic-Folder.ico" MouseDown="Window_MouseDown">
     <Window.Resources>
+        <Style x:Key="GridViewColumnHeaderGripper"
+       TargetType="Thumb">
+            <Setter Property="Width"
+          Value="18" />
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0"
+                           EndPoint="0,1">
+                        <LinearGradientBrush.GradientStops>
+                            <GradientStopCollection>
+                                <GradientStop Color="{DynamicResource BorderLightColor}"
+                          Offset="0.0" />
+                                <GradientStop Color="{DynamicResource BorderDarkColor}"
+                          Offset="1.0" />
+                            </GradientStopCollection>
+                        </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Thumb}">
+                        <Border Padding="{TemplateBinding Padding}"
+                Background="Transparent">
+                            <Rectangle HorizontalAlignment="Center"
+                     Width="1"
+                     Fill="{TemplateBinding Background}" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderBrush">
+                <Setter.Value>
+                    <LinearGradientBrush EndPoint="0.5,1"
+                           StartPoint="0.5,0">
+                        <GradientStop Color="Black"
+                      Offset="0" />
+                        <GradientStop Color="White"
+                      Offset="1" />
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
     <Grid Background="#2B2B2B">
         <Label x:Name="lbl_GroupMembers" Content="Group Members : " HorizontalAlignment="Left" Margin="10,91,0,0" VerticalAlignment="Top" Width="150"/>
@@ -23,7 +66,7 @@
                                                     Background="{TemplateBinding Background}" 
                                                     Padding="{TemplateBinding Padding}"
                                                     SnapsToDevicePixels="true">
-                                    <GridViewRowPresenter 
+                                    <GridViewRowPresenter
                                                     HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
                                                     SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
                                                     VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
@@ -44,24 +87,28 @@
                 <GridView>
                     <GridView.ColumnHeaderContainerStyle>
                         <Style TargetType="{x:Type GridViewColumnHeader}">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="{x:Type GridViewColumnHeader}">
-                                        <Border BorderThickness=".5" BorderBrush="Black" Background="DimGray" Height="20">
-                                            <TextBlock x:Name="ContentHeader" Text="{TemplateBinding Content}" Width="{TemplateBinding Width}" TextAlignment="Center" Foreground="White" VerticalAlignment="Center"/>
-                                    </Border>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                        <Setter Property="OverridesDefaultStyle" Value="True" />
-                        <Setter Property="Foreground" Value="Black" />
-                        <Setter Property="FontFamily" Value="Segoe UI" />
-                        <Setter Property="FontSize" Value="12" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type GridViewColumnHeader}">
+                                        <Grid>
+                                            <Border BorderThickness=".5" BorderBrush="Black" Background="DimGray" Height="20">
+                                                <TextBlock x:Name="ContentHeader" Text="{TemplateBinding Content}" Width="{TemplateBinding Width}" TextAlignment="Center" Foreground="White" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <Thumb x:Name="PART_HeaderGripper" HorizontalAlignment="Right" Margin="0,0,-9,0" Style="{StaticResource GridViewColumnHeaderGripper}" />
+                                        </Grid>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="IsHitTestVisible" Value="True" />
+                            <Setter Property="OverridesDefaultStyle" Value="True" />
+                            <Setter Property="Foreground" Value="Black" />
+                            <Setter Property="FontFamily" Value="Segoe UI" />
+                            <Setter Property="FontSize" Value="12" />
                             <Setter Property="VerticalContentAlignment" Value="Center"/>
                             <Setter Property="HorizontalContentAlignment" Value="Center"/>
                         </Style>
-                        </GridView.ColumnHeaderContainerStyle>
-                        <GridViewColumn Header="Enable" Width="50">
+                    </GridView.ColumnHeaderContainerStyle>
+                    <GridViewColumn Header="Enable" Width="50">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <CheckBox IsChecked="{Binding Enable}" VerticalAlignment="Center"/>
@@ -126,9 +173,12 @@
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="{x:Type GridViewColumnHeader}">
-                                        <Border BorderThickness=".5" BorderBrush="Black" Background="DimGray" Height="20">
-                                            <TextBlock x:Name="ContentHeader" Text="{TemplateBinding Content}" Width="{TemplateBinding Width}" TextAlignment="Center" Foreground="White"  VerticalAlignment="Center"/>
-                                        </Border>
+                                        <Grid>
+                                            <Border BorderThickness=".5" BorderBrush="Black" Background="DimGray" Height="20">
+                                                <TextBlock x:Name="ContentHeader" Text="{TemplateBinding Content}" Width="{TemplateBinding Width}" TextAlignment="Center" Foreground="White"  VerticalAlignment="Center"/>
+                                            </Border>
+                                            <Thumb x:Name="PART_HeaderGripper" HorizontalAlignment="Right" Margin="0,0,-9,0" Style="{StaticResource GridViewColumnHeaderGripper}" />
+                                        </Grid>
                                     </ControlTemplate>
                                 </Setter.Value>
                             </Setter>
@@ -156,7 +206,7 @@
         <Button x:Name="btn_SetAlterKey" Content="Set Alter Key" HorizontalAlignment="Left" VerticalAlignment="Top" Width="103" Margin="257,272,0,0" Height="23" Click="btn_SetAlterKey_Click" IsEnabled="False"/>
         <CheckBox x:Name="cbox_AddKeywordToGroup" Content="Add Keyword to Group" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="11,277,0,0" Height="23"/>
         <Button x:Name="btn_GetOriginalAsKeyword" Content="Get Original" HorizontalAlignment="Left" Margin="365,198,0,0" VerticalAlignment="Top" Width="100" Height="67" Click="btn_GetOriginalAsKeyword_Click"/>
-        <Label x:Name="lbl_GroupsMatch" Content="Match in Groups" Background="LightBlue" HorizontalAlignment="Left" Margin="365,49,0,0" VerticalAlignment="Top" Height="31" Width="100" Visibility="Hidden"/>
+        <Label x:Name="lbl_GroupsMatch" Content="Match in Groups" Background="LightBlue" HorizontalAlignment="Left" Margin="365,49,0,0" VerticalAlignment="Top" Height="31" Width="110" Visibility="Hidden" Foreground="Black"/>
         <Label x:Name="lbl_PresenterLength" Content=" chars" HorizontalAlignment="Left" Margin="257,10,0,0" VerticalAlignment="Top" Width="100" HorizontalContentAlignment="Right"/>
         <Button x:Name="btn_SetKeywordKey" Content="Set as Keyword" HorizontalAlignment="Left" VerticalAlignment="Top" Width="124" Margin="75,336,0,0" Height="23" Click="btn_SetKeyWordKey_Click" IsEnabled="False"/>
         <CheckBox x:Name="chkbox_PresenterOnly" Content="Presenter Only" HorizontalAlignment="Left" Margin="262,91,0,0" VerticalAlignment="Top" IsChecked="False"/>
