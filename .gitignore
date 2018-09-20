@@ -259,3 +259,6 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+/FolderRenameAssist/Images/Undo.png
+/FolderRenameAssist/Images/Preview.png
+/FolderRenameAssist/Images/GO.png
