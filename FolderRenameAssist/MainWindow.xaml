@@ -80,6 +80,10 @@
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter Property="Background" Value="DimGray" />
                         </Trigger>
+                        <Trigger Property="IsSelected" Value="true" >
+                            <Setter Property="Foreground" Value="Black" />
+                            <Setter Property="Background" Value="LightSkyBlue" />
+                        </Trigger>
                     </Style.Triggers>
                 </Style>
             </ListView.ItemContainerStyle>
@@ -163,6 +167,10 @@
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter Property="Background" Value="DimGray" />
                         </Trigger>
+                        <Trigger Property="IsSelected" Value="true" >
+                            <Setter Property="Foreground" Value="Black" />
+                            <Setter Property="Background" Value="LightSkyBlue" />
+                        </Trigger>
                     </Style.Triggers>
                 </Style>
             </ListView.ItemContainerStyle>
@@ -197,12 +205,12 @@
             </ListView.View>
         </ListView>
         <Label x:Name="lbl_TargetCounts" Content="No. of Items : 0" HorizontalAlignment="Left" Margin="10,394,0,0" VerticalAlignment="Top" Width="120"/>
-        <TextBox x:Name="tbx_TitleKeyword" HorizontalAlignment="Left" Height="67" Margin="10,198,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="350" KeyUp="tbx_TitleKeyword_KeyUp" TextChanged="tbx_TitleKeyword_TextChanged"/>
+        <TextBox x:Name="tbx_TitleKeyword" SelectionBrush="LightSkyBlue" SelectionOpacity="0.5" Foreground="LightGray" CaretBrush="White"  HorizontalAlignment="Left" Height="67" Margin="10,198,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="350" KeyUp="tbx_TitleKeyword_KeyUp" TextChanged="tbx_TitleKeyword_TextChanged"/>
         <Label x:Name="lbl_Keyword" Content="Keyword : " HorizontalAlignment="Left" Margin="11,172,0,0" VerticalAlignment="Top"/>
         <Label x:Name="lbl_AnidbID" Content="Anidb ID : " HorizontalAlignment="Left" Margin="3,301,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="tbx_AnidbID" HorizontalAlignment="Left" Height="23" Margin="75,305,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="124" KeyUp="tbx_AnidbID_KeyUp" TextChanged="tbx_AnidbID_TextChanged"/>
+        <TextBox x:Name="tbx_AnidbID" SelectionBrush="LightSkyBlue" SelectionOpacity="0.5" Foreground="LightGray" CaretBrush="White"  HorizontalAlignment="Left" Height="23" Margin="75,305,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="124" KeyUp="tbx_AnidbID_KeyUp" TextChanged="tbx_AnidbID_TextChanged"/>
         <Label x:Name="lbl_Presenter" Content="Presenter : " HorizontalAlignment="Left" VerticalAlignment="Top" Margin="11,10,0,0"/>
-        <TextBox x:Name="tbx_Presenter" HorizontalAlignment="Left" Height="50" Margin="11,36,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="349" TextChanged="tbx_Presenter_TextChanged" AcceptsTab="True" SpellCheck.IsEnabled="False" MaxLength="10000"/>
+        <TextBox x:Name="tbx_Presenter" SelectionBrush="LightSkyBlue" SelectionOpacity="0.5" Foreground="LightGray" CaretBrush="White"  HorizontalAlignment="Left" Height="50" Margin="11,36,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="349" TextChanged="tbx_Presenter_TextChanged" AcceptsTab="True" SpellCheck.IsEnabled="False" MaxLength="10000"/>
         <Button x:Name="btn_SetAlterKey" Content="Set Alter Key" HorizontalAlignment="Left" VerticalAlignment="Top" Width="103" Margin="257,272,0,0" Height="23" Click="btn_SetAlterKey_Click" IsEnabled="False"/>
         <CheckBox x:Name="cbox_AddKeywordToGroup" Content="Add Keyword to Group" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="11,277,0,0" Height="23"/>
         <Button x:Name="btn_GetOriginalAsKeyword" Content="Get Original" HorizontalAlignment="Left" Margin="365,198,0,0" VerticalAlignment="Top" Width="100" Height="67" Click="btn_GetOriginalAsKeyword_Click"/>
@@ -211,8 +219,8 @@
         <Button x:Name="btn_SetKeywordKey" Content="Set as Keyword" HorizontalAlignment="Left" VerticalAlignment="Top" Width="124" Margin="75,336,0,0" Height="23" Click="btn_SetKeyWordKey_Click" IsEnabled="False"/>
         <CheckBox x:Name="chkbox_PresenterOnly" Content="Presenter Only" HorizontalAlignment="Left" Margin="262,91,0,0" VerticalAlignment="Top" IsChecked="False"/>
         <Button x:Name="btn_ResetSearch" Content="X" HorizontalAlignment="Left" Margin="560,2,0,0" VerticalAlignment="Top" Width="31" Height="23" Click="btn_ResetSearch_Click"/>
-        <TextBox x:Name="tbx_SearchGroups" Height="23" HorizontalAlignment="Left" Margin="606,2,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="129" TextChanged="tbx_SearchGroups_TextChanged"/>
-        <TextBox x:Name="tbx_GroupMembers" HorizontalAlignment="Left" Height="53" Margin="11,119,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="346"/>
+        <TextBox x:Name="tbx_SearchGroups" SelectionBrush="LightSkyBlue" SelectionOpacity="0.5" Foreground="LightGray" CaretBrush="White" Height="23" HorizontalAlignment="Left" Margin="606,2,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="129" TextChanged="tbx_SearchGroups_TextChanged"/>
+        <TextBox x:Name="tbx_GroupMembers" SelectionBrush="LightSkyBlue" SelectionOpacity="0.5" Foreground="LightGray" CaretBrush="White" HorizontalAlignment="Left" Height="53" Margin="11,119,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="346"/>
 
     </Grid>
 </Window>

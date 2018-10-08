@@ -623,23 +623,31 @@ namespace FolderRenameAssist
 
         public MainWindow()
         {
-            //log4net.Config.XmlConfigurator.Configure();
-            InitializeComponent();
-            this.Title = this.Title + " v" + System.Reflection.Assembly.GetEntryAssembly().GetName().Version;
-            //log4net.GlobalContext.Properties["pid"] = Process.GetCurrentProcess().Id; 
-            btn_Undo.IsEnabled = false;
-            btn_UpdateGroup.IsEnabled = false;
-            btn_RemoveGroup.IsEnabled = false;
-            btn_Remove_Item.IsEnabled = false;
-            btn_Preview.IsEnabled = false;
-            btn_GO.IsEnabled = false;
-            btn_Reset_Filelist.IsEnabled = false;
-            ((INotifyCollectionChanged)lView_Groups.Items).CollectionChanged += listView_CollectionChanged;
-            ((INotifyCollectionChanged)lView_TargetList.Items).CollectionChanged += listView_CollectionChanged;
-            groups = XMLHelper.LoadGroupXML(@"GroupSetting.xml");
-            if (groups.Count > 0) lView_Groups.ItemsSource = groups;
+            try
+            {
+                //log4net.Config.XmlConfigurator.Configure();
+                InitializeComponent();
+                this.Title = this.Title + " v" + System.Reflection.Assembly.GetEntryAssembly().GetName().Version;
+                //log4net.GlobalContext.Properties["pid"] = Process.GetCurrentProcess().Id; 
+                btn_Undo.IsEnabled = false;
+                btn_UpdateGroup.IsEnabled = false;
+                btn_RemoveGroup.IsEnabled = false;
+                btn_Remove_Item.IsEnabled = false;
+                btn_Preview.IsEnabled = false;
+                btn_GO.IsEnabled = false;
+                btn_Reset_Filelist.IsEnabled = false;
+                ((INotifyCollectionChanged)lView_Groups.Items).CollectionChanged += listView_CollectionChanged;
+                ((INotifyCollectionChanged)lView_TargetList.Items).CollectionChanged += listView_CollectionChanged;
+                groups = XMLHelper.LoadGroupXML(@"GroupSetting.xml");
+                if (groups.Count > 0) lView_Groups.ItemsSource = groups;
 
-            CheckAniDBSource();
+                CheckAniDBSource();
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex);
+                MessageBox.Show(ex.ToString());
+            }
         }
 
         private void CheckAniDBSource()
@@ -653,40 +661,72 @@ namespace FolderRenameAssist
             TimeSpan span = DateTime.Now.Subtract(sourcedate);
             if (span.TotalDays > 1)
             {
-                Console.WriteLine("Time for update");
+                log.Info("The anidb-titles.xml is "+ span.TotalDays + " days(s) old, time for an update.");
                 if (File.Exists(@"anime-titles.bak"))
                 {
-                    FileSystem.DeleteFile(@"anime-titles.bak", UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
-                }
-                File.Move(@"anime-titles.xml", @"anime-titles.bak");
-                using (var client = new WebClient())
-                {
-                    client.DownloadFile("http://anidb.net/api/anime-titles.xml.gz", "anime-titles.xml.gz");
-                    FileInfo updategz = new FileInfo(@"anime-titles.xml.gz");
-                    using (FileStream originalFileStream = updategz.OpenRead())
+                    try
                     {
-                        string currentFileName = updategz.FullName;
-                        string newFileName = currentFileName.Remove(currentFileName.Length - updategz.Extension.Length);
-
-                        using (FileStream decompressedFileStream = File.Create(newFileName))
+                        FileSystem.DeleteFile(@"anime-titles.bak", UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error("Trying to delete anime-titles.bak result in error.", ex);
+                    }
+                }
+                if (File.Exists(@"anime-titles.xml"))
+                {
+                    try
+                    {
+                        File.Move(@"anime-titles.xml", @"anime-titles.bak");
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error("Trying to rename anime-titles.xml to anime-titles.bak result in error.", ex);
+                    }
+                }
+                try
+                {
+                    using (var client = new WebClient())
+                    {
+                        client.DownloadFile("http://anidb.net/api/anime-titles.xml.gz", "anime-titles.xml.gz");
+                        FileInfo updategz = new FileInfo(@"anime-titles.xml.gz");
+                        using (FileStream originalFileStream = updategz.OpenRead())
                         {
-                            using (GZipStream decompressionStream = new GZipStream(originalFileStream, CompressionMode.Decompress))
+                            string currentFileName = updategz.FullName;
+                            string newFileName = currentFileName.Remove(currentFileName.Length - updategz.Extension.Length);
+
+                            using (FileStream decompressedFileStream = File.Create(newFileName))
                             {
-                                decompressionStream.CopyTo(decompressedFileStream);
-                                Console.WriteLine("Decompressed: {0}", updategz.Name);
+                                using (GZipStream decompressionStream = new GZipStream(originalFileStream, CompressionMode.Decompress))
+                                {
+                                    decompressionStream.CopyTo(decompressedFileStream);
+                                    Console.WriteLine("Decompressed: {0}", updategz.Name);
+                                }
                             }
                         }
                     }
                 }
+                catch (Exception ex)
+                {
+                    log.Error("Trying to download anime-titles.xml from anidb.net result in error.", ex);
+                    throw;
+                }
             }
             else
             {
-                Console.WriteLine("Source is still fresh");
+                log.Info("The anime-titles.xml is still fresh.");
             }
             anititles = XMLHelper.LoadAnimeTitlesXML(@"anime-titles.xml");
             if (File.Exists(@"anime-titles.xml.gz"))
             {
-                FileSystem.DeleteFile(@"anime-titles.xml.gz", UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
+                try
+                {
+                    FileSystem.DeleteFile(@"anime-titles.xml.gz", UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Trying to delete anime-titles.xml.gz result in error.", ex);
+                }
             }
         }
 
@@ -818,7 +858,7 @@ namespace FolderRenameAssist
         {
             if (lView_TargetList.SelectedIndex != -1)
             {
-                tbx_TitleKeyword.Text = GroupHandler.StringSanitizer(((ItemToRename)lView_TargetList.SelectedItem).Before);
+                tbx_TitleKeyword.Text = ((ItemToRename)lView_TargetList.SelectedItem).Before;
             }
         }
         private AnidbResult SearchMatchFromBothSources(string keyword)
