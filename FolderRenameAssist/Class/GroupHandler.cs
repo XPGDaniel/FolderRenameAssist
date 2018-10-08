@@ -159,7 +159,7 @@ namespace FolderRenameAssist.Class
             }
 
             foldername = before;
-            
+
             if (foldername.Contains(" "))
             {
                 HashSet<string> stringSet = new HashSet<string>(new string[] { "w", "d", "wd", "zd" });
@@ -174,8 +174,8 @@ namespace FolderRenameAssist.Class
                     foldername = foldername.Substring(FirstSplitCheck.Length).Trim();
                 }
             }
-            
-                return foldername;
+
+            return foldername;
             //}
         }
 
@@ -229,24 +229,30 @@ namespace FolderRenameAssist.Class
                 if (idsearch)
                 {
                     gr = groups.Where(x => x.Enable && x.AnidbId == keyword.Replace("anidb-", "")).FirstOrDefault();
-                    if (gr != null)
-                    {
-                        ar.aid = "xxx";
-                        ar.presenter = gr.Presenter;
-                        ar.keywords = gr.Members;
-                        return ar;
-                    }
                 }
                 else
                 {
-                    gr = groups.Where(x => x.Enable && x.Members.ToLowerInvariant().Contains(keyword.ToLowerInvariant())).FirstOrDefault();
-                    if (gr != null)
+                    string prepped_keyword = keyword;
+                    if (!keyword.StartsWith("["))
+                        prepped_keyword = "[" + prepped_keyword;
+                    if (!keyword.EndsWith("]"))
+                        prepped_keyword = prepped_keyword + "]";
+                    gr = groups.Where(x => x.Enable && x.Presenter.ToLowerInvariant().Contains(prepped_keyword.ToLowerInvariant())).FirstOrDefault();
+                    if (gr == null)
                     {
-                        ar.aid = "xxx";
-                        ar.presenter = gr.Presenter;
-                        ar.keywords = gr.Members;
-                        return ar;
+                        gr = groups.Where(x => x.Enable && x.Presenter.ToLowerInvariant().Contains(keyword.ToLowerInvariant())).FirstOrDefault();
                     }
+                    if (gr == null)
+                    {
+                        gr = groups.Where(x => x.Enable && x.Members.ToLowerInvariant().Contains(keyword.ToLowerInvariant())).FirstOrDefault();
+                    }
+                }
+                if (gr != null)
+                {
+                    ar.aid = "xxx";
+                    ar.presenter = gr.Presenter;
+                    ar.keywords = gr.Members;
+                    return ar;
                 }
             }
             return null;
