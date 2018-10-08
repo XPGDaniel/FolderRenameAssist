@@ -30,7 +30,6 @@ namespace FolderRenameAssist
         public ObservableCollection<AnimeTitle> anititles = new ObservableCollection<AnimeTitle>();
         public ObservableCollection<ItemToRename> Targets = new ObservableCollection<ItemToRename>();
         public string OriginalSearchWord = "";
-        public Key LastKeyStrokeOnGroups = Key.NoName;
 
         private void btn_Preview_Click(object sender, RoutedEventArgs e)
         {
@@ -661,7 +660,7 @@ namespace FolderRenameAssist
             TimeSpan span = DateTime.Now.Subtract(sourcedate);
             if (span.TotalDays > 1)
             {
-                log.Info("The anidb-titles.xml is "+ span.TotalDays + " days(s) old, time for an update.");
+                log.Info("The anidb-titles.xml is " + span.TotalDays + " days(s) old, time for an update.");
                 if (File.Exists(@"anime-titles.bak"))
                 {
                     try
@@ -730,8 +729,15 @@ namespace FolderRenameAssist
             }
         }
 
-        private void tbx_TitleKeyword_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        private void tbx_TitleKeyword_KeyUp(object sender, KeyEventArgs e)
         {
+            if (e != null)
+                if (e.Key == Key.Escape)
+                {
+                    tbx_TitleKeyword.Text = string.Empty;
+                    return;
+                }
+
             AnidbResult ar = SearchMatchFromBothSources(tbx_TitleKeyword.Text);
             if (ar != null)
             {
@@ -786,7 +792,7 @@ namespace FolderRenameAssist
             }
         }
 
-        private void tbx_AnidbID_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        private void tbx_AnidbID_KeyUp(object sender, KeyEventArgs e)
         {
             AnidbResult ar = GroupHandler.SearchAniDBByID(anititles, tbx_AnidbID.Text.Trim());
             if (ar != null)
@@ -802,7 +808,7 @@ namespace FolderRenameAssist
             }
         }
 
-        private void lView_Groups_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        private void lView_Groups_KeyUp(object sender, KeyEventArgs e)
         {
             //string CurrentKeypress = "[" + e.Key.ToString().ToLowerInvariant();
             //bool CurrentSelectedPattern = ((Group)lView_Groups.SelectedItem).Presenter.ToLowerInvariant().StartsWith(CurrentKeypress);
@@ -897,19 +903,6 @@ namespace FolderRenameAssist
             return null;
         }
 
-        private void rtb_Presenter_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (!string.IsNullOrEmpty(tbx_Presenter.Text))
-            {
-                lbl_PresenterLength.Content = System.Text.Encoding.UTF8.GetBytes(tbx_Presenter.Text).Length.ToString() + " chars"; //RichTextBoxHepler.GetText(rtb_Presenter)
-            }
-            else
-            {
-                if (lbl_PresenterLength != null)
-                    lbl_PresenterLength.Content = "";
-            }
-        }
-
         private void btn_SetKeyWordKey_Click(object sender, RoutedEventArgs e)
         {
             if (!string.IsNullOrEmpty(tbx_AnidbID.Text.Trim()))
@@ -928,9 +921,15 @@ namespace FolderRenameAssist
 
         private void tbx_SearchGroups_TextChanged(object sender, TextChangedEventArgs e)
         {
-            string CurrentKeypress = "[" + tbx_SearchGroups.Text.ToString().ToLowerInvariant();
+            string CurrentKeypress = "[" + tbx_SearchGroups.Text.ToLowerInvariant();
             bool CurrentSelectedPattern = false;
-            var item = groups.Where(x => x.Presenter.ToLowerInvariant().StartsWith(CurrentKeypress)).FirstOrDefault();
+
+            string prepped_keyword = Utilities.Prepare_Keyword(tbx_SearchGroups.Text.ToLowerInvariant());
+
+            Group item = null;
+            item = groups.Where(x => x.Presenter.ToLowerInvariant().StartsWith(prepped_keyword)).FirstOrDefault();
+            if (item == null)
+                item = groups.Where(x => x.Presenter.ToLowerInvariant().StartsWith(CurrentKeypress)).FirstOrDefault();
             if (CurrentSelectedPattern)
             {
                 if (!((Group)lView_Groups.Items[lView_Groups.SelectedIndex + 1]).Presenter.ToLowerInvariant().StartsWith(CurrentKeypress))
@@ -978,6 +977,16 @@ namespace FolderRenameAssist
                 if (lbl_PresenterLength != null)
                     lbl_PresenterLength.Content = "";
             }
+        }
+
+        private void tbx_SearchGroups_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e != null)
+                if (e.Key == Key.Escape)
+                {
+                    tbx_SearchGroups.Text = string.Empty;
+                    return;
+                }
         }
     }
 }

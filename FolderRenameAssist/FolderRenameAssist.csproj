@@ -96,7 +96,7 @@
     <Compile Include="Class\GlobalConst.cs" />
     <Compile Include="Class\GroupHandler.cs" />
     <Compile Include="Class\LogHelper.cs" />
-    <Compile Include="Class\RichTextBoxHepler.cs" />
+    <Compile Include="Class\Utilities.cs" />
     <Compile Include="Class\XMLHelper.cs" />
     <Compile Include="Objects\AnidbResult.cs" />
     <Compile Include="Objects\AnimeTitle.cs" />

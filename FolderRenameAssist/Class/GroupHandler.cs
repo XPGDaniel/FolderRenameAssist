@@ -10,7 +10,6 @@ namespace FolderRenameAssist.Class
 {
     public class GroupHandler
     {
-        private static readonly Regex cjkCharRegex = new Regex(@"\p{IsCJKUnifiedIdeographs}");
         private static Dictionary<string, string> _sanitizer = new Dictionary<string, string>();
 
         static GroupHandler()
@@ -93,29 +92,6 @@ namespace FolderRenameAssist.Class
             }
             return list;
         }
-        public static int IndexOfAny(string test, string[] values)
-        {
-            int first = -1;
-            foreach (string item in values)
-            {
-                int i = test.IndexOf(item);
-                if (i >= 0)
-                {
-                    if (first > 0)
-                    {
-                        if (i < first)
-                        {
-                            first = i;
-                        }
-                    }
-                    else
-                    {
-                        first = i;
-                    }
-                }
-            }
-            return first;
-        }
         public static string StringSanitizer(string input)
         {
             StringBuilder sb = new StringBuilder(input.ToLowerInvariant().Trim());
@@ -181,7 +157,6 @@ namespace FolderRenameAssist.Class
 
         public static AnidbResult SearchAniDB(ObservableCollection<AnimeTitle> anititles, string keyword, bool idsearch)
         {
-            AnidbResult ar = new AnidbResult();
             int aid = 0;
 
             if (idsearch)
@@ -212,9 +187,12 @@ namespace FolderRenameAssist.Class
                 presenter = string.Join(",", Pcandidates);
                 if (!string.IsNullOrEmpty(keyword))
                 {
-                    ar.aid = aid.ToString();
-                    ar.presenter = presenter;
-                    ar.keywords = keywords;
+                    AnidbResult ar = new AnidbResult
+                    {
+                        aid = aid.ToString(),
+                        presenter = presenter,
+                        keywords = keywords
+                    };
                     return ar;
                 }
             }
@@ -222,36 +200,43 @@ namespace FolderRenameAssist.Class
         }
         public static AnidbResult SearchGroups(ObservableCollection<Objects.Group> groups, string keyword, bool idsearch)
         {
-            AnidbResult ar = new AnidbResult();
             Objects.Group gr = new Objects.Group();
             if (!string.IsNullOrEmpty(keyword))
             {
+                keyword = keyword.ToLowerInvariant();
                 if (idsearch)
                 {
                     gr = groups.Where(x => x.Enable && x.AnidbId == keyword.Replace("anidb-", "")).FirstOrDefault();
                 }
                 else
                 {
-                    string prepped_keyword = keyword;
-                    if (!keyword.StartsWith("["))
-                        prepped_keyword = "[" + prepped_keyword;
-                    if (!keyword.EndsWith("]"))
-                        prepped_keyword = prepped_keyword + "]";
-                    gr = groups.Where(x => x.Enable && x.Presenter.ToLowerInvariant().Contains(prepped_keyword.ToLowerInvariant())).FirstOrDefault();
+                    string prepped_keyword = Utilities.Prepare_Keyword(keyword);
+                    // Presenter full match
+                    gr = groups.Where(x => x.Enable && x.Presenter.ToLowerInvariant().Contains(prepped_keyword)).FirstOrDefault();
+                    // Presenter StartWith
                     if (gr == null)
                     {
-                        gr = groups.Where(x => x.Enable && x.Presenter.ToLowerInvariant().Contains(keyword.ToLowerInvariant())).FirstOrDefault();
+                        gr = groups.Where(x => x.Enable && x.Presenter.ToLowerInvariant().StartsWith(prepped_keyword.Replace("]",""))).FirstOrDefault();
                     }
+                    // Presenter partial match
                     if (gr == null)
                     {
-                        gr = groups.Where(x => x.Enable && x.Members.ToLowerInvariant().Contains(keyword.ToLowerInvariant())).FirstOrDefault();
+                        gr = groups.Where(x => x.Enable && x.Presenter.ToLowerInvariant().Contains(keyword)).FirstOrDefault();
+                    }
+                    // Members partial match
+                    if (gr == null)
+                    {
+                        gr = groups.Where(x => x.Enable && x.Members.ToLowerInvariant().Contains(keyword)).FirstOrDefault();
                     }
                 }
                 if (gr != null)
                 {
-                    ar.aid = "xxx";
-                    ar.presenter = gr.Presenter;
-                    ar.keywords = gr.Members;
+                    AnidbResult ar = new AnidbResult
+                    {
+                        aid = "xxx",
+                        presenter = gr.Presenter,
+                        keywords = gr.Members
+                    };
                     return ar;
                 }
             }
@@ -259,7 +244,6 @@ namespace FolderRenameAssist.Class
         }
         public static AnidbResult SearchAniDBByID(ObservableCollection<AnimeTitle> anititles, string aid)
         {
-            AnidbResult ar = new AnidbResult();
             string keywords = "";
             string presenter = "";
             if (!string.IsNullOrEmpty(aid) && int.TryParse(aid, out int tryit))
@@ -268,16 +252,15 @@ namespace FolderRenameAssist.Class
                 keywords = string.Join(",", candidates);
                 string[] Pcandidates = anititles.Where(x => x.aid == Convert.ToInt32(aid) && x.type != "short").Select(x => x.title).Distinct(StringComparer.CurrentCultureIgnoreCase).ToArray();
                 presenter = string.Join(",", Pcandidates);
-                ar.aid = aid;
-                ar.presenter = presenter;
-                ar.keywords = keywords;
+                AnidbResult ar = new AnidbResult
+                {
+                    aid = aid,
+                    presenter = presenter,
+                    keywords = keywords
+                };
                 return ar;
             }
             return null;
-        }
-        public static bool IsChinese(char c)
-        {
-            return cjkCharRegex.IsMatch(c.ToString());
         }
     }
 }
