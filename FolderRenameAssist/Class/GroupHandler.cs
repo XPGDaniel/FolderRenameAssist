@@ -95,32 +95,31 @@ namespace FolderRenameAssist.Class
         public static string StringSanitizer(string input)
         {
             StringBuilder sb = new StringBuilder(input.ToLowerInvariant().Trim());
-            string chunk = "";
             foreach (string to_replace in _sanitizer.Keys)
             {
                 sb = sb.Replace(to_replace, _sanitizer[to_replace]);
             }
             input = sb.ToString();
 
-            while (input.LastIndexOf('[') > -1 && input.Contains(']'))
+            input = RemoveQuotation('[', ']', input);
+            input = RemoveQuotation('(', ')', input);
+            input = RemoveQuotation('「', '」', input);
+            input = RemoveQuotation('{', '}', input);
+            input = RemoveQuotation('【', '】', input);
+            return input;
+        }
+        public static string RemoveQuotation(char front, char back, string input)
+        {
+            string chunk = "";
+            while (input.LastIndexOf(front) > -1 && input.Contains(back))
             {
-                chunk = input.Substring(input.LastIndexOf('[')).Trim();
-                chunk = chunk.Substring(0, chunk.IndexOf(']') + 1).Trim();
-                input = input.Replace(chunk, "").Trim();
+                chunk = input.Substring(input.LastIndexOf(front)).Trim();
+                chunk = chunk.Substring(0, chunk.IndexOf(back) + 1).Trim();
+                if (!string.IsNullOrEmpty(chunk))
+                    input = input.Replace(chunk, "").Trim();
+                else
+                    break;
             }
-            while (input.LastIndexOf('(') > -1 && input.Contains(')'))
-            {
-                chunk = input.Substring(input.LastIndexOf('(')).Trim();
-                chunk = chunk.Substring(0, chunk.IndexOf(')') + 1).Trim();
-                input = input.Replace(chunk, "").Trim();
-            }
-            while (input.LastIndexOf('「') > -1 && input.Contains('」'))
-            {
-                chunk = input.Substring(input.LastIndexOf('「')).Trim();
-                chunk = chunk.Substring(0, chunk.IndexOf('」') + 1).Trim();
-                input = input.Replace(chunk, "").Trim();
-            }
-
             return input;
         }
         public static string GetTitleKeyword(string before)
@@ -216,7 +215,7 @@ namespace FolderRenameAssist.Class
                     // Presenter StartWith
                     if (gr == null)
                     {
-                        gr = groups.Where(x => x.Enable && x.Presenter.ToLowerInvariant().StartsWith(prepped_keyword.Replace("]",""))).FirstOrDefault();
+                        gr = groups.Where(x => x.Enable && x.Presenter.ToLowerInvariant().StartsWith(prepped_keyword.Replace("]", ""))).FirstOrDefault();
                     }
                     // Presenter partial match
                     if (gr == null)

@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Folder Rename Assist" Height="660" Width="1175" Icon="Images/Hopstarter-Sleek-Xp-Basic-Folder.ico" MouseDown="Window_MouseDown">
+        Title="Folder Rename Assist Alter" Height="660" Width="1175" Icon="Images/Hopstarter-Sleek-Xp-Basic-Folder.ico" MouseDown="Window_MouseDown">
     <Window.Resources>
         <Style x:Key="GridViewColumnHeaderGripper"
        TargetType="Thumb">
@@ -51,11 +51,15 @@
         </Style>
     </Window.Resources>
     <Grid Background="#2B2B2B">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="163*"/>
+            <ColumnDefinition Width="1005*"/>
+        </Grid.ColumnDefinitions>
         <Label x:Name="lbl_GroupMembers" Content="Group Members : " HorizontalAlignment="Left" Margin="10,91,0,0" VerticalAlignment="Top" Width="150"/>
-        <Button x:Name="btn_AddGroup" Content=" Add&#xD;&#xA;Group" HorizontalAlignment="Left" Margin="285,327,0,0" VerticalAlignment="Top" Width="75" Height="50" Click="btn_AddGroup_Click"/>
-        <Button x:Name="btn_UpdateGroup" Content="Update&#xD;&#xA; Group" HorizontalAlignment="Left" Margin="480,215,0,0" VerticalAlignment="Top" Width="75" Height="50" Click="btn_UpdateGroup_Click"/>
-        <Button x:Name="btn_RemoveGroup" Content="Remove&#xD;&#xA; Group" Background="LightPink" HorizontalAlignment="Left" Margin="480,30,0,0" VerticalAlignment="Top" Width="75" Height="50" Click="btn_RemoveGroup_Click"/>
-        <ListView x:Name="lView_Groups" HorizontalAlignment="Stretch" Height="294" Margin="560,36,10,0" VerticalAlignment="Top" Width="auto" SelectionChanged="lView_Groups_SelectionChanged" KeyUp="lView_Groups_KeyUp" KeyDown="lView_Groups_KeyDown" Background="#191919" Foreground="LightGray" >
+        <Button x:Name="btn_AddGroup" Content=" Add&#xD;&#xA;Group" HorizontalAlignment="Left" Margin="122.333,327,0,0" VerticalAlignment="Top" Width="75" Height="50" Click="btn_AddGroup_Click" Grid.Column="1"/>
+        <Button x:Name="btn_UpdateGroup" Content="Update&#xD;&#xA; Group" HorizontalAlignment="Left" Margin="317.333,215,0,0" VerticalAlignment="Top" Width="75" Height="50" Click="btn_UpdateGroup_Click" Grid.Column="1"/>
+        <Button x:Name="btn_RemoveGroup" Content="Remove&#xD;&#xA; Group" Background="LightPink" HorizontalAlignment="Left" Margin="317.333,30,0,0" VerticalAlignment="Top" Width="75" Height="50" Click="btn_RemoveGroup_Click" Grid.Column="1"/>
+        <ListView x:Name="lView_Groups" HorizontalAlignment="Stretch" Height="294" Margin="397.333,36,10,0" VerticalAlignment="Top" Width="auto" SelectionChanged="lView_Groups_SelectionChanged" KeyUp="lView_Groups_KeyUp" KeyDown="lView_Groups_KeyDown" Background="#191919" Foreground="LightGray" Grid.Column="1" >
             <ListView.ItemContainerStyle>
                 <Style TargetType="{x:Type ListViewItem}">
                     <Setter Property="Template">
@@ -125,24 +129,24 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <Button x:Name="btn_Reset_Filelist" Background="LightPink" Content="Reset Filelist" HorizontalAlignment="Right" Margin="0,385,281,0" VerticalAlignment="Top" Width="110" Height="30" Click="btn_Reset_Filelist_Click"/>
-        <Button x:Name="btn_Remove_Item" Content="Remove from list" HorizontalAlignment="Right" Margin="0,385,404,0" VerticalAlignment="Top" Width="110" Height="30" Click="btn_Remove_Item_Click"/>
-        <Button x:Name="btn_Undo" HorizontalAlignment="Right" Margin="0,336,180,0" VerticalAlignment="Top" Background="LightSteelBlue" Width="80" Height="80" Click="btn_Undo_Click">
+        <Button x:Name="btn_Reset_Filelist" Background="LightPink" Content="Reset Filelist" HorizontalAlignment="Right" Margin="0,363,498,0" VerticalAlignment="Top" Width="110" Height="52" Click="btn_Reset_Filelist_Click" Grid.Column="1"/>
+        <Button x:Name="btn_Remove_Item" Content="Remove Item" HorizontalAlignment="Right" Margin="0,363,300,0" VerticalAlignment="Top" Width="110" Height="52" Click="btn_Remove_Item_Click" Grid.Column="1"/>
+        <Button x:Name="btn_Undo" HorizontalAlignment="Right" Margin="0,336,180,0" VerticalAlignment="Top" Background="LightSteelBlue" Width="80" Height="80" Click="btn_Undo_Click" Grid.Column="1">
             <StackPanel>
                 <Image Source="Images\Undo.png" />
             </StackPanel>
         </Button>
-        <Button x:Name="btn_GO" HorizontalAlignment="Right" Margin="0,336,95,0" VerticalAlignment="Top" Width="80" Height="80" Background="LightGreen" Click="btn_GO_Click">
+        <Button x:Name="btn_GO" HorizontalAlignment="Right" Margin="0,336,95,0" VerticalAlignment="Top" Width="80" Height="80" Background="LightGreen" Click="btn_GO_Click" Grid.Column="1">
             <StackPanel>
                 <Image Source="Images\GO.png" />
             </StackPanel>
         </Button>
-        <Button x:Name="btn_Preview" HorizontalAlignment="Right" Margin="0,336,10,0" VerticalAlignment="Top" Width="80" Height="80" Background="LightSkyBlue" Click="btn_Preview_Click">
+        <Button x:Name="btn_Preview" HorizontalAlignment="Right" Margin="0,336,10,0" VerticalAlignment="Top" Width="80" Height="80" Background="LightSkyBlue" Click="btn_Preview_Click" Grid.Column="1">
             <StackPanel>
                 <Image Source="Images\Preview.png" />
             </StackPanel>
         </Button>
-        <ListView x:Name="lView_TargetList" HorizontalAlignment="Stretch" Height="auto" Margin="10,420,10,10" VerticalAlignment="Stretch" Width="auto" ScrollViewer.VerticalScrollBarVisibility="Auto" AllowDrop="True" Drop="lView_TargetList_Drop" DragEnter="lView_TargetList_DragEnter" SelectionChanged="lView_TargetList_SelectionChanged" DragOver="lView_TargetList_DragOver"  Background="#191919" Foreground="LightGray" >
+        <ListView x:Name="lView_TargetList" HorizontalAlignment="Stretch" Height="auto" Margin="10,420,10,9.667" VerticalAlignment="Stretch" Width="auto" ScrollViewer.VerticalScrollBarVisibility="Auto" AllowDrop="True" Drop="lView_TargetList_Drop" DragEnter="lView_TargetList_DragEnter" SelectionChanged="lView_TargetList_SelectionChanged" DragOver="lView_TargetList_DragOver"  Background="#191919" Foreground="LightGray" Grid.ColumnSpan="2" >
             <ListView.ItemContainerStyle>
                 <Style TargetType="{x:Type ListViewItem}">
                     <Setter Property="Template">
@@ -205,22 +209,22 @@
             </ListView.View>
         </ListView>
         <Label x:Name="lbl_TargetCounts" Content="No. of Items : 0" HorizontalAlignment="Left" Margin="10,394,0,0" VerticalAlignment="Top" Width="120"/>
-        <TextBox x:Name="tbx_TitleKeyword" SelectionBrush="LightSkyBlue" SelectionOpacity="0.5" Foreground="LightGray" CaretBrush="White"  HorizontalAlignment="Left" Height="67" Margin="10,198,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="350" KeyUp="tbx_TitleKeyword_KeyUp" TextChanged="tbx_TitleKeyword_TextChanged"/>
+        <TextBox x:Name="tbx_TitleKeyword" SelectionBrush="LightSkyBlue" SelectionOpacity="0.5" Foreground="LightGray" CaretBrush="White"  HorizontalAlignment="Left" Height="67" Margin="10,198,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="350" KeyUp="tbx_TitleKeyword_KeyUp" TextChanged="tbx_TitleKeyword_TextChanged" Grid.ColumnSpan="2"/>
         <Label x:Name="lbl_Keyword" Content="Keyword : " HorizontalAlignment="Left" Margin="11,172,0,0" VerticalAlignment="Top"/>
         <Label x:Name="lbl_AnidbID" Content="Anidb ID : " HorizontalAlignment="Left" Margin="3,301,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="tbx_AnidbID" SelectionBrush="LightSkyBlue" SelectionOpacity="0.5" Foreground="LightGray" CaretBrush="White"  HorizontalAlignment="Left" Height="23" Margin="75,305,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="124" KeyUp="tbx_AnidbID_KeyUp" TextChanged="tbx_AnidbID_TextChanged"/>
+        <TextBox x:Name="tbx_AnidbID" SelectionBrush="LightSkyBlue" SelectionOpacity="0.5" Foreground="LightGray" CaretBrush="White"  HorizontalAlignment="Left" Height="23" Margin="75,305,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="124" KeyUp="tbx_AnidbID_KeyUp" TextChanged="tbx_AnidbID_TextChanged" Grid.ColumnSpan="2"/>
         <Label x:Name="lbl_Presenter" Content="Presenter : " HorizontalAlignment="Left" VerticalAlignment="Top" Margin="11,10,0,0"/>
-        <TextBox x:Name="tbx_Presenter" SelectionBrush="LightSkyBlue" SelectionOpacity="0.5" Foreground="LightGray" CaretBrush="White"  HorizontalAlignment="Left" Height="50" Margin="11,36,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="349" TextChanged="tbx_Presenter_TextChanged" AcceptsTab="True" SpellCheck.IsEnabled="False" MaxLength="10000"/>
-        <Button x:Name="btn_SetAlterKey" Content="Set Alter Key" HorizontalAlignment="Left" VerticalAlignment="Top" Width="103" Margin="257,272,0,0" Height="23" Click="btn_SetAlterKey_Click" IsEnabled="False"/>
-        <CheckBox x:Name="cbox_AddKeywordToGroup" Content="Add Keyword to Group" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="11,277,0,0" Height="23"/>
-        <Button x:Name="btn_GetOriginalAsKeyword" Content="Get Original" HorizontalAlignment="Left" Margin="365,198,0,0" VerticalAlignment="Top" Width="100" Height="67" Click="btn_GetOriginalAsKeyword_Click"/>
-        <Label x:Name="lbl_GroupsMatch" Content="Match in Groups" Background="LightBlue" HorizontalAlignment="Left" Margin="365,49,0,0" VerticalAlignment="Top" Height="31" Width="110" Visibility="Hidden" Foreground="Black"/>
-        <Label x:Name="lbl_PresenterLength" Content=" chars" HorizontalAlignment="Left" Margin="257,10,0,0" VerticalAlignment="Top" Width="100" HorizontalContentAlignment="Right"/>
-        <Button x:Name="btn_SetKeywordKey" Content="Set as Keyword" HorizontalAlignment="Left" VerticalAlignment="Top" Width="124" Margin="75,336,0,0" Height="23" Click="btn_SetKeyWordKey_Click" IsEnabled="False"/>
-        <CheckBox x:Name="chkbox_PresenterOnly" Content="Presenter Only" HorizontalAlignment="Left" Margin="262,91,0,0" VerticalAlignment="Top" IsChecked="False"/>
-        <Button x:Name="btn_ResetSearch" Content="X" HorizontalAlignment="Left" Margin="560,2,0,0" VerticalAlignment="Top" Width="31" Height="23" Click="btn_ResetSearch_Click"/>
-        <TextBox x:Name="tbx_SearchGroups" SelectionBrush="LightSkyBlue" SelectionOpacity="0.5" Foreground="LightGray" CaretBrush="White" Height="23" HorizontalAlignment="Left" Margin="606,2,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="129" TextChanged="tbx_SearchGroups_TextChanged" KeyUp="tbx_SearchGroups_KeyUp"/>
-        <TextBox x:Name="tbx_GroupMembers" SelectionBrush="LightSkyBlue" SelectionOpacity="0.5" Foreground="LightGray" CaretBrush="White" HorizontalAlignment="Left" Height="53" Margin="11,119,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="346"/>
+        <TextBox x:Name="tbx_Presenter" SelectionBrush="LightSkyBlue" SelectionOpacity="0.5" Foreground="LightGray" CaretBrush="White"  HorizontalAlignment="Left" Height="50" Margin="11,36,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="349" TextChanged="tbx_Presenter_TextChanged" AcceptsTab="True" SpellCheck.IsEnabled="False" MaxLength="10000" Grid.ColumnSpan="2"/>
+        <Button x:Name="btn_SetAlterKey" Content="Set Alter Key" HorizontalAlignment="Left" VerticalAlignment="Top" Width="103" Margin="94.333,272,0,0" Height="23" Click="btn_SetAlterKey_Click" IsEnabled="False" Grid.Column="1"/>
+        <CheckBox x:Name="cbox_AddKeywordToGroup" Content="Add Keyword to Group" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="11,277,0,0" Height="23" Grid.ColumnSpan="2"/>
+        <Button x:Name="btn_GetOriginalAsKeyword" Content="Get Original" HorizontalAlignment="Left" Margin="202.333,198,0,0" VerticalAlignment="Top" Width="100" Height="67" Click="btn_GetOriginalAsKeyword_Click" Grid.Column="1"/>
+        <Label x:Name="lbl_GroupsMatch" Content="Group&#xD;&#xA;Match" Background="LightBlue" HorizontalAlignment="Left" Margin="229.333,31,0,0" VerticalAlignment="Top" Height="49" Width="83" Visibility="Hidden" Foreground="Black" Grid.Column="1" HorizontalContentAlignment="Center"/>
+        <Label x:Name="lbl_PresenterLength" Content=" chars" HorizontalAlignment="Left" Margin="94.333,10,0,0" VerticalAlignment="Top" Width="100" HorizontalContentAlignment="Right" Grid.Column="1"/>
+        <Button x:Name="btn_SetKeywordKey" Content="Set as Keyword" HorizontalAlignment="Left" VerticalAlignment="Top" Width="124" Margin="75,336,0,0" Height="23" Click="btn_SetKeyWordKey_Click" IsEnabled="False" Grid.ColumnSpan="2"/>
+        <CheckBox x:Name="chkbox_PresenterOnly" Content="Presenter Only" HorizontalAlignment="Left" Margin="99.333,91,0,0" VerticalAlignment="Top" IsChecked="False" Grid.Column="1"/>
+        <Button x:Name="btn_ResetSearch" Content="X" HorizontalAlignment="Left" Margin="397.333,2,0,0" VerticalAlignment="Top" Width="31" Height="23" Click="btn_ResetSearch_Click" Grid.Column="1"/>
+        <TextBox x:Name="tbx_SearchGroups" SelectionBrush="LightSkyBlue" SelectionOpacity="0.5" Foreground="LightGray" CaretBrush="White" Height="23" HorizontalAlignment="Left" Margin="443.333,2,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="129" TextChanged="tbx_SearchGroups_TextChanged" KeyUp="tbx_SearchGroups_KeyUp" Grid.Column="1"/>
+        <TextBox x:Name="tbx_GroupMembers" SelectionBrush="LightSkyBlue" SelectionOpacity="0.5" Foreground="LightGray" CaretBrush="White" HorizontalAlignment="Left" Height="53" Margin="11,119,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="346" Grid.ColumnSpan="2"/>
 
     </Grid>
 </Window>
