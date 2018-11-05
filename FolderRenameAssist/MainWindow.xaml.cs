@@ -638,7 +638,8 @@ namespace FolderRenameAssist
                 ((INotifyCollectionChanged)lView_Groups.Items).CollectionChanged += listView_CollectionChanged;
                 ((INotifyCollectionChanged)lView_TargetList.Items).CollectionChanged += listView_CollectionChanged;
                 groups = XMLHelper.LoadGroupXML(@"GroupSetting.xml");
-                if (groups.Count > 0) lView_Groups.ItemsSource = groups;
+                if (groups != null)
+                    if (groups.Count > 0) lView_Groups.ItemsSource = groups;
 
                 CheckAniDBSource();
             }
