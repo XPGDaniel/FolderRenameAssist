@@ -769,9 +769,19 @@ namespace FolderRenameAssist
 
         private void btn_SetAlterKey_Click(object sender, RoutedEventArgs e)
         {
-            if (!string.IsNullOrEmpty(tbx_TitleKeyword.Text) && lView_TargetList.SelectedItems.Count == 1)
+            //if (!string.IsNullOrEmpty(tbx_TitleKeyword.Text) && lView_TargetList.SelectedItems.Count == 1)
+            //{
+            //    ((ItemToRename)lView_TargetList.SelectedItem).AlterKey = tbx_TitleKeyword.Text.Trim(); //.Replace(":", "：")
+            //    btn_SetAlterKey.IsEnabled = false;
+            //    lView_TargetList.Items.Refresh();
+            //}
+
+            if (!string.IsNullOrEmpty(tbx_TitleKeyword.Text) && lView_TargetList.SelectedItems.Count > 0)
             {
-                ((ItemToRename)lView_TargetList.SelectedItem).AlterKey = tbx_TitleKeyword.Text.Trim(); //.Replace(":", "：")
+                foreach (ItemToRename item in lView_TargetList.SelectedItems)
+                {
+                    item.AlterKey = tbx_TitleKeyword.Text.Trim(); //.Replace(":", "：")
+                }
                 btn_SetAlterKey.IsEnabled = false;
                 lView_TargetList.Items.Refresh();
             }

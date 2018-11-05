@@ -72,19 +72,21 @@ namespace FolderRenameAssist.Class
                         }
                         if (listItem == null)
                         {
+                            listItem = groups.Find(x => x.Enable && x.Presenter.ToLowerInvariant().Contains("[" + finalkeyword.ToLowerInvariant()));
+                        }
+                        if (listItem == null)
+                        {
                             listItem = groups.Find(x => x.Enable && x.Members.ToLowerInvariant().Contains(finalkeyword.ToLowerInvariant()));
                         }
                         if (listItem != null)
                         {
-                            //listItem.Presenter = listItem.Presenter; //.Replace(",", "][")
-                            //list[i].Before = list[i].Before.Replace(defaultkeyword, listItem.Presenter);
                             if (presentOnly == true)
                             {
                                 list[i].Before = listItem.Presenter;
                             }
                             else
                             {
-                                list[i].Before = listItem.Presenter + list[i].Before; //prefix
+                                list[i].Before = listItem.Presenter + list[i].Before; //prefix mode
                             }
                         }
                     }
