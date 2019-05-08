@@ -225,6 +225,7 @@
         <Button x:Name="btn_ResetSearch" Content="X" HorizontalAlignment="Left" Margin="397.333,2,0,0" VerticalAlignment="Top" Width="31" Height="23" Click="btn_ResetSearch_Click" Grid.Column="1"/>
         <TextBox x:Name="tbx_SearchGroups" SelectionBrush="LightSkyBlue" SelectionOpacity="0.5" Foreground="LightGray" CaretBrush="White" Height="23" HorizontalAlignment="Left" Margin="443.333,2,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="129" TextChanged="tbx_SearchGroups_TextChanged" KeyUp="tbx_SearchGroups_KeyUp" Grid.Column="1"/>
         <TextBox x:Name="tbx_GroupMembers" SelectionBrush="LightSkyBlue" SelectionOpacity="0.5" Foreground="LightGray" CaretBrush="White" HorizontalAlignment="Left" Height="53" Margin="11,119,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="346" Grid.ColumnSpan="2"/>
+        <CheckBox x:Name="chkbox_UNC" Content="UNC" HorizontalAlignment="Left" Margin="235.333,91,0,0" VerticalAlignment="Top" IsChecked="False" Grid.Column="1"/>
 
     </Grid>
 </Window>

@@ -41,7 +41,7 @@ namespace FolderRenameAssist.Class
             _sanitizer[" sp"] = " ";
             _sanitizer["_"] = " ";
         }
-        public static List<ItemToRename> ReplaceFolderName(List<ItemToRename> list, List<FolderRenameAssist.Objects.Group> groups, bool? presentOnly)
+        public static List<ItemToRename> ReplaceFolderName(List<ItemToRename> list, List<FolderRenameAssist.Objects.Group> groups, bool? presentOnly, bool? UNC)
         {
             if (list != null && groups != null)
             {
@@ -87,6 +87,10 @@ namespace FolderRenameAssist.Class
                             else
                             {
                                 list[i].Before = listItem.Presenter + list[i].Before; //prefix mode
+                            }
+                            if (UNC == true)
+                            {
+                                list[i].Before = list[i].Before + "[UNC]";
                             }
                         }
                     }

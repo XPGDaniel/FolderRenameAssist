@@ -49,7 +49,7 @@ namespace FolderRenameAssist
                 }
                 if (groups.Any())
                 {
-                    newFilenameList = GroupHandler.ReplaceFolderName(newFilenameList, groups.ToList(), chkbox_PresenterOnly.IsChecked);
+                    newFilenameList = GroupHandler.ReplaceFolderName(newFilenameList, groups.ToList(), chkbox_PresenterOnly.IsChecked, chkbox_UNC.IsChecked);
                     for (int i = 0; i < Targets.Count; i++)
                     {
                         int index = Targets.IndexOf(Targets.Where(X => X.Path == newFilenameList[i].Path).FirstOrDefault());
