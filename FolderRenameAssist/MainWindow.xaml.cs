@@ -136,7 +136,7 @@ namespace FolderRenameAssist
                                             Directory.Move(fileCandidate.Path, Directory.GetParent(fileCandidate.Path).FullName + "\\" + fileCandidate.After);
                                             fileCandidate.Result = GlobalConst.RESULT_RENAME_OK;
                                         }
-                                        catch (Exception)
+                                        catch (Exception ex)
                                         {
                                             try
                                             {
@@ -145,8 +145,49 @@ namespace FolderRenameAssist
                                             }
                                             catch (Exception)
                                             {
-                                                throw;
+                                                throw ex;
                                             }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        fileCandidate.Result = GlobalConst.RESULT_NO_RENAME;
+                                    }
+                                }
+                                else
+                                {
+                                    fileCandidate.Result = GlobalConst.RESULT_INVALID_NEW_FOLDERNAME;
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                log.Error(ex.ToString());
+                                fileCandidate.Result = GlobalConst.RESULT_RENAME_FAIL;
+                            }
+                        }
+                        else if (File.Exists(fileCandidate.Path))
+                        {
+                            try
+                            {
+                                if (string.IsNullOrEmpty(fileCandidate.After))
+                                {
+                                    fileCandidate.Result = GlobalConst.EMPTY_STRING;
+                                    continue;
+                                }
+                                string newFilepath = Path.Combine(Path.GetDirectoryName(fileCandidate.Path), fileCandidate.After);
+                                if (!string.IsNullOrEmpty(newFilepath))
+                                {
+                                    if (fileCandidate.Path != newFilepath)
+                                    {
+                                        log.Info(newFilepath);
+                                        try
+                                        {
+                                            File.Move(fileCandidate.Path, newFilepath);
+                                            fileCandidate.Result = GlobalConst.RESULT_RENAME_OK;
+                                        }
+                                        catch (Exception)
+                                        {
+                                            throw;
                                         }
                                     }
                                     else
@@ -222,6 +263,18 @@ namespace FolderRenameAssist
                                 fileCandidate.Result = GlobalConst.RESULT_UNDO_FAIL;
                             }
                         }
+                        else if (File.Exists(Path.Combine(Path.GetDirectoryName(fileCandidate.Path), fileCandidate.After)))
+                        {
+                            try
+                            {
+                                File.Move(Path.Combine(Path.GetDirectoryName(fileCandidate.Path), fileCandidate.After), fileCandidate.Path);
+                                fileCandidate.Result = GlobalConst.RESULT_UNDO_OK;
+                            }
+                            catch (Exception)
+                            {
+                                fileCandidate.Result = GlobalConst.RESULT_UNDO_FAIL;
+                            }
+                        }
                     }
                     for (int i = 0; i < UndoList.Count; i++)
                     {
@@ -250,6 +303,12 @@ namespace FolderRenameAssist
                     if (Targets.IndexOf(Targets.Where(X => X.Path == di.FullName).FirstOrDefault()) < 0)
                         Targets.Add(new ItemToRename { Path = di.FullName, Before = di.Name, AlterKey = "", After = GlobalConst.EMPTY_STRING, Result = GlobalConst.EMPTY_STRING });
 
+                }
+                else if (File.Exists(s))
+                {
+                    FileInfo fi = new FileInfo(s);
+                    if (Targets.IndexOf(Targets.Where(X => X.Path == fi.FullName).FirstOrDefault()) < 0)
+                        Targets.Add(new ItemToRename { Path = fi.FullName, Before = fi.Name, AlterKey = "", After = GlobalConst.EMPTY_STRING, Result = GlobalConst.EMPTY_STRING });
                 }
             }
             if (Targets.Count > 0)
@@ -346,19 +405,9 @@ namespace FolderRenameAssist
                 // By default, the drop action should be move, if allowed.
                 e.Effects = DragDropEffects.Move;
 
-                //switch (cbox_TargetType.SelectedItem.ToString())
-                //{
-                //    case GlobalConst.TARGETTYPE_FOLDERNAME:
-                string[] folders = (string[])e.Data.GetData(DataFormats.FileDrop);
-                if (folders.Length > 0 && (e.AllowedEffects & DragDropEffects.Copy) == DragDropEffects.Copy)
+                string[] items = (string[])e.Data.GetData(DataFormats.FileDrop);
+                if (items.Length > 0 && (e.AllowedEffects & DragDropEffects.Copy) == DragDropEffects.Copy)
                     e.Effects = DragDropEffects.Copy;
-                //        break;
-                //    default:
-                //        string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-                //        if (files.Length > 0 && (e.AllowedEffects & DragDropEffects.Copy) == DragDropEffects.Copy)
-                //            e.Effects = DragDropEffects.Copy;
-                //        break;
-                //}
             }
             else
                 e.Effects = DragDropEffects.None;
