@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -47,7 +48,7 @@ namespace FolderRenameAssist.Class
             {
                 for (int i = 0; i < list.Count; i++)
                 {
-                    string defaultkeyword = GetTitleKeyword(list[i].Before);
+                    string defaultkeyword = Path.GetFileNameWithoutExtension(GetTitleKeyword(list[i].Before)).Trim();
                     string finalkeyword = "";
                     if (!string.IsNullOrEmpty(list[i].AlterKey))
                     {
