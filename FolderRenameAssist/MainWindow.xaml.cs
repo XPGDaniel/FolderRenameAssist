@@ -341,7 +341,7 @@ namespace FolderRenameAssist
                 if (lView_TargetList.SelectedItems.Count == 1)
                 {
                     tbx_TitleKeyword.Text = string.IsNullOrEmpty(((ItemToRename)lView_TargetList.SelectedItems[0]).AlterKey) ?
-                        GroupHandler.GetTitleKeyword(((ItemToRename)lView_TargetList.SelectedItems[0]).Before) : ((ItemToRename)lView_TargetList.SelectedItems[0]).AlterKey;
+                        GroupHandler.GetTitleKeyword(Path.GetFileNameWithoutExtension(((ItemToRename)lView_TargetList.SelectedItems[0]).Before)) : ((ItemToRename)lView_TargetList.SelectedItems[0]).AlterKey;
 
                     OriginalSearchWord = string.IsNullOrEmpty(tbx_TitleKeyword.Text) ? ((ItemToRename)lView_TargetList.SelectedItems[0]).Before : tbx_TitleKeyword.Text;
                     if (string.IsNullOrEmpty(tbx_TitleKeyword.Text)) tbx_TitleKeyword.Text = OriginalSearchWord;
