@@ -737,6 +737,7 @@ namespace FolderRenameAssist
                 {
                     using (var client = new WebClient())
                     {
+                        client.Headers.Add("user-agent", "FolderRenameAssist");
                         client.DownloadFile("http://anidb.net/api/anime-titles.xml.gz", "anime-titles.xml.gz");
                         FileInfo updategz = new FileInfo(@"anime-titles.xml.gz");
                         using (FileStream originalFileStream = updategz.OpenRead())
